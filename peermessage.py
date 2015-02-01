@@ -1,9 +1,10 @@
 import json
-import datastore, helpers
+import datastore, helpers, blockchain_func
 from bottle import route, run, static_file, request, redirect
-import bitcoin.rpc
+from bitcoin.rpc import Proxy as rpcProcessedProxy
+from bitcoinrpc.authproxy import AuthServiceProxy as rpcRawProxy
+
 import local_db
-from bitcoinrpc.authproxy import AuthServiceProxy
 import time
 import webbrowser
 import os
@@ -111,8 +112,8 @@ def scan_blockchain():
         Scan one block in the blockchain (and optionally mempool as well)
     """
     local_db_session = local_db.get_session()
-    rpc_raw = AuthServiceProxy(helpers.get_rpc_url())
-    latest_block, blocks_left = helpers.scan_block(rpc_raw, local_db_session)
+    rpc_raw = rpcRawProxy(helpers.get_rpc_url())
+    latest_block, blocks_left = blockchain_func.scan_block(rpc_raw, local_db_session)
     return json.dumps({
         "status":"success",
         "latest_block": latest_block,
@@ -127,7 +128,7 @@ def transmit_message():
     from_address = request.forms.get('from_address')
     to_address = request.forms.get('to_address')
     message = request.forms.get('message')
-    rpc_raw = AuthServiceProxy(helpers.get_rpc_url())
+    rpc_raw = rpcRawProxy(helpers.get_rpc_url())
     if not os.path.isdir(os.getcwd()+"/public_keys/gpg_"+to_address):
         return json.dumps({"status":"error", "msg":"No public key found for that address."})
     try:
@@ -143,8 +144,8 @@ def transmit_message():
     op_return_data += "msg" #opcode (message), 3 chars
     op_return_data += opreturn_key #key pointing to datastore
 
-    rpc_processed = bitcoin.rpc.Proxy()
-    helpers.submit_opreturn(rpc_processed, from_address, op_return_data)
+    rpc_processed = rpcProcessedProxy()
+    blockchain_func.submit_opreturn(rpc_processed, from_address, op_return_data)
     return json.dumps({"status":"success"})
 
 @route('/publish_pk', method='POST')
@@ -157,7 +158,7 @@ def publish_pk():
         pub_key = helpers.get_pk(address)
     except ValueError:
         return json.dumps({"status":"error", "message":"Must create GPG keys before publishing them!"})
-    rpc_raw = AuthServiceProxy(helpers.get_rpc_url())
+    rpc_raw = rpcRawProxy(helpers.get_rpc_url())
     pub_key += "|" + helpers.sign_string(rpc_raw, pub_key, address)
     pub_key = helpers.format_outgoing(pub_key)
     opreturn_key = datastore.post_data(pub_key)
@@ -166,8 +167,8 @@ def publish_pk():
     op_return_data += "pka" #opcode (public key announce), 3 chars
     op_return_data += opreturn_key #key pointing to datastore
 
-    rpc_processed = bitcoin.rpc.Proxy()
-    helpers.submit_opreturn(rpc_processed, address, op_return_data)
+    rpc_processed = rpcProcessedProxy()
+    blockchain_func.submit_opreturn(rpc_processed, address, op_return_data)
 
     local_db_session = local_db.get_session()
     local_db_session.query(local_db.MyKey).filter(local_db.MyKey.address==address).delete()
@@ -212,14 +213,14 @@ def get_addresses():
     """
         Get all your addresses from your wallet.
     """
-    rpc_raw = AuthServiceProxy(helpers.get_rpc_url())
+    rpc_raw = rpcRawProxy(helpers.get_rpc_url())
     addresses = rpc_raw.listunspent(0)
     return json.dumps({"status":"success", "data":addresses}, default=helpers.json_custom_parser)
 
 @route('/')
 def base():
     try:
-        rpc_raw = AuthServiceProxy(helpers.get_rpc_url())
+        rpc_raw = rpcRawProxy(helpers.get_rpc_url())
         rpc_raw.getblockcount()
         redirect("/inbox")
     except IOError:
@@ -227,11 +228,11 @@ def base():
 
 @route('/inbox')
 def inbox():
-    return static_file("inbox.html", root='./')
+    return static_file("templates/inbox.html", root='./')
 
 @route('/setup')
 def setup():
-    return static_file("setup.html", root='./')
+    return static_file("templates/setup.html", root='./')
 
 @route('/static/:filename#.*#')
 def send_static(filename):
