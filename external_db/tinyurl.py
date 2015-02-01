@@ -17,7 +17,7 @@ def get_data_tinyurl(key):
         headers = {
             'User-Agent': get_random_useragent()
         }
-        url = 'http://tinyurl.com/1'+key+key_suffix
+        url = 'http://tinyurl.com/'+key+key_suffix
         print "hitting", url
         try:
             r = requests.get(url, headers=headers)
@@ -29,7 +29,7 @@ def get_data_tinyurl(key):
 
         if not current_url:
             #Alternate retrieval method that doesn't ping stackoverflow:
-            url = 'http://preview.tinyurl.com/1'+key+key_suffix
+            url = 'http://preview.tinyurl.com/'+key+key_suffix
             r = requests.get(url, headers=headers)
             try:
                 current_url = r.text.split('http://stackoverflow.com/?')[1].split('</b>')[0].replace("<br />", "")
