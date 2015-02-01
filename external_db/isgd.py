@@ -18,7 +18,7 @@ def get_data(key):
         headers = {
             'User-Agent': get_random_useragent()
         }
-        url = 'http://is.gd/a'+key+key_suffix
+        url = 'http://is.gd/'+key+key_suffix
         print "hitting", url
         r = requests.get(url, headers=headers, cookies={'preview': '0'})
         if "http://stackoverflow.com/?" in r.url: #what is the url after following redirects?
