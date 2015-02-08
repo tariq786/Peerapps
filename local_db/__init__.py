@@ -3,7 +3,7 @@ from sqlalchemy import create_engine
 import time
 from sqlalchemy.orm import sessionmaker
 
-engine = create_engine('sqlite:///peermessage.db', connect_args={'check_same_thread':False})
+engine = create_engine('sqlite:///peerapps.db', connect_args={'check_same_thread':False})
 
 Base = declarative_base()
 Base.metadata.bind = engine
@@ -18,5 +18,7 @@ def get_session():
     DBSession = sessionmaker(bind=engine)
     return DBSession()
 
-from messaging import *
-from microblogging import *
+import os
+for name in os.listdir("./modules/"):
+    if os.path.isfile("./modules/"+name+"/db_schema.py"):
+        exec "from modules."+name+".db_schema import *"

@@ -1,9 +1,10 @@
 import random
 import hashlib
 import time
-import isgd, tinyurl, pastebin
 
 def post_data(value):
+    import isgd, tinyurl, pastebin
+
     #key must NOT contain capital letters, causes opcode error
     key = hashlib.sha1(str(time.time())+value).hexdigest()[:25]
 
@@ -18,12 +19,11 @@ def post_data(value):
     #isgd enforces key max length of 30
     isgd.post_data(key, value)
 
-    print "KEY", key
-
     return key
 
 def get_data(key):
-
+    import isgd, tinyurl, pastebin
+    
     #share the load
     choices = ["tinyurl", "isgd", "pastebin"]
     random.shuffle(choices)

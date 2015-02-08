@@ -5,13 +5,12 @@ import datetime
 from decimal import Decimal
 import platform
 from bitcoinrpc.authproxy import AuthServiceProxy
-import local_db
-import datastore
+import local_db, external_db
 
 import shutil
 
 def download_blg(rpc_raw, key, from_address):
-    found_data = datastore.get_data(key)
+    found_data = external_db.get_data(key)
 
     if not found_data:
         print "Unable to retrieve blog post, skipping"

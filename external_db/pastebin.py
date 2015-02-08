@@ -5,7 +5,7 @@ from __init__ import get_random_useragent
 #PASTEBIN
 ###############
 
-def get_data_pastebin(key):
+def get_data(key):
     headers = {
         'User-Agent': get_random_useragent()
     }
@@ -18,7 +18,7 @@ def get_data_pastebin(key):
     print "Pulled from pastebin"
     return r.text
 
-def post_data_pastebin(value):
+def post_data(value):
     headers = {
         'User-Agent': get_random_useragent()
     }

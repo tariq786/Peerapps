@@ -5,7 +5,7 @@ from __init__ import get_random_useragent
 #TINYURL
 ###############
 
-def get_data_tinyurl(key):
+def get_data(key):
     final_data = ""
     iterations = 0
     while True:
@@ -47,7 +47,7 @@ def get_data_tinyurl(key):
             #print "Retrieved final piece", current_url
             return final_data + current_url
 
-def post_data_tinyurl(key, value):
+def post_data(key, value):
     max_chunk_size = 1800
     indx = 0
     iterations = 0
