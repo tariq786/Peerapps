@@ -36,7 +36,6 @@ def base():
 
 @rootApp.route('/static/:filename#.*#')
 def send_static(filename):
-    import pdb; pdb.set_trace()
     return static_file(filename, root='./static/')
 
 for name in os.listdir("./modules/"):
