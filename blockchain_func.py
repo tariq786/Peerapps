@@ -1,6 +1,5 @@
 import os
-import datastore
-import local_db
+import local_db, external_db
 from bitcoinrpc.authproxy import JSONRPCException
 
 from sqlalchemy.sql import update
@@ -98,7 +97,7 @@ def parse_transaction(rpc_raw, local_db_session, tx_id, block_index, block_time)
                 parse_blg(rpc_raw, local_db_session, op_return_data, from_user_address, block_index, tx_id, block_time)
 
 def parse_pka(rpc_raw, local_db_session, op_return_data, from_user_address, block_index, tx_id, block_time):
-    found_data = datastore.get_data(op_return_data[5:])
+    found_data = external_db.get_data(op_return_data[5:])
     if op_return_data[2:5] == "pka": #Public Key Announcement
         if not local_db_session.query(local_db.PublicKey).filter(local_db.PublicKey.key==op_return_data[5:]).first():
             format_public_key = helpers.format_incoming(found_data)
@@ -126,7 +125,7 @@ def parse_pka(rpc_raw, local_db_session, op_return_data, from_user_address, bloc
             local_db_session.commit()
 
 def parse_msg(rpc_raw, local_db_session, op_return_data, from_user_address, block_index, tx_id, block_time):
-    found_data = datastore.get_data(op_return_data[5:])
+    found_data = external_db.get_data(op_return_data[5:])
     if op_return_data[2:5] == "msg": #Encrypted Message
         if not local_db_session.query(local_db.Message).filter(local_db.Message.key==op_return_data[5:]).first():
             if not found_data:

@@ -1,5 +1,5 @@
 from sqlalchemy import Column, String, Integer, Text
-from __init__ import Base, _get_timestamp
+from local_db import Base, _get_timestamp
 
 #MICROBLOGGING
 class Broadcast(Base):
