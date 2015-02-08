@@ -5,8 +5,45 @@ import datetime
 from decimal import Decimal
 import platform
 from bitcoinrpc.authproxy import AuthServiceProxy
+import local_db
+import datastore
 
 import shutil
+
+def download_blg(rpc_raw, key, from_address):
+    found_data = datastore.get_data(key)
+
+    if not found_data:
+        print "Unable to retrieve blog post, skipping"
+        return None
+
+    formatted_message = format_incoming(found_data)
+    try:
+        verified_message = verify_and_strip_signature(rpc_raw, formatted_message, from_address)
+    except AssertionError:
+        print "Signature invalid, skip blog post."
+        return None
+    except AttributeError:
+        print "Unable to pull blog post from external data source."
+        return None
+
+    return verified_message
+
+
+def download_blgs(rpc_raw, local_db_session):
+    db_blogs = local_db_session.query(local_db.Broadcast).filter(local_db.Broadcast.msg == "").order_by(local_db.Broadcast.time.desc())
+    my_addresses = [x['address'] for x in rpc_raw.listunspent(0)]
+    for b in db_blogs:
+        if b.address_from in my_addresses or local_db_session.query(local_db.Subscription).filter(local_db.Subscription.address == b.address_from).first():
+
+            blog_post = download_blg(rpc_raw, b.key, b.address_from)
+            if blog_post is None:
+                #delete it or something.
+                pass
+
+            print "Saved new broadcast message", blog_post
+            local_db_session.query(local_db.Broadcast).filter(local_db.Broadcast.key == b.key).update({"msg": blog_post})
+            local_db_session.commit()
 
 def get_service_status():
     """

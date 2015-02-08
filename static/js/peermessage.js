@@ -8,8 +8,8 @@ function address_updated() {
 function update_balance_info() {
     var v = address_to_balance[$('#peercoin_address').val()];
     $('#ppc_balance').html(v+" ppc");
-    var message_balance = parseInt(parseFloat(v) / 0.00011);
-    $("#messages_balance").html("<br>~"+message_balance+" messages"); //TODO update to peercoin cost, 0.01
+    var message_balance = parseInt(parseFloat(v) / 0.00011); //TODO update to peercoin cost, 0.01
+    $("#messages_balance").html("<br>~"+message_balance+" messages");
 }
 
 function delete_message(tx_id) {

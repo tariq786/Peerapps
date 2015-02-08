@@ -13,7 +13,5 @@ class Broadcast(Base):
 
 class Subscription(Base):
     __tablename__ = 'subscription'
-    address = Column(String(250))
-    tag = Column(String(250))
-    key = Column(String(250), primary_key=True)
+    address = Column(String(250), primary_key=True)
     time = Column(Integer, default=_get_timestamp)

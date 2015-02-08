@@ -92,12 +92,13 @@ def parse_transaction(rpc_raw, local_db_session, tx_id, block_index, block_time)
                     input_raw_tx = rpc_raw.decoderawtransaction(rpc_raw.getrawtransaction(inp['txid']))
                     addresses.append(input_raw_tx['vout'][inp['vout']]['scriptPubKey']['addresses'][0])
                 from_user_address = addresses[0]
-                found_data = datastore.get_data(op_return_data[5:])
 
-                parse_pka(rpc_raw, local_db_session, op_return_data, found_data, from_user_address, block_index, tx_id, block_time)
-                parse_msg(rpc_raw, local_db_session, op_return_data, found_data, from_user_address, block_index, tx_id, block_time)
+                parse_pka(rpc_raw, local_db_session, op_return_data, from_user_address, block_index, tx_id, block_time)
+                parse_msg(rpc_raw, local_db_session, op_return_data, from_user_address, block_index, tx_id, block_time)
+                parse_blg(rpc_raw, local_db_session, op_return_data, from_user_address, block_index, tx_id, block_time)
 
-def parse_pka(rpc_raw, local_db_session, op_return_data, found_data, from_user_address, block_index, tx_id, block_time):
+def parse_pka(rpc_raw, local_db_session, op_return_data, from_user_address, block_index, tx_id, block_time):
+    found_data = datastore.get_data(op_return_data[5:])
     if op_return_data[2:5] == "pka": #Public Key Announcement
         if not local_db_session.query(local_db.PublicKey).filter(local_db.PublicKey.key==op_return_data[5:]).first():
             format_public_key = helpers.format_incoming(found_data)
@@ -124,7 +125,8 @@ def parse_pka(rpc_raw, local_db_session, op_return_data, found_data, from_user_a
             local_db_session.add(new_pub_key)
             local_db_session.commit()
 
-def parse_msg(rpc_raw, local_db_session, op_return_data, found_data, from_user_address, block_index, tx_id, block_time):
+def parse_msg(rpc_raw, local_db_session, op_return_data, from_user_address, block_index, tx_id, block_time):
+    found_data = datastore.get_data(op_return_data[5:])
     if op_return_data[2:5] == "msg": #Encrypted Message
         if not local_db_session.query(local_db.Message).filter(local_db.Message.key==op_return_data[5:]).first():
             if not found_data:
@@ -146,7 +148,7 @@ def parse_msg(rpc_raw, local_db_session, op_return_data, found_data, from_user_a
             for to_user_address in my_addresses:
                 dec_message = helpers.decrypt_string(verified_message, to_user_address)
                 if dec_message:
-                    new_pub_key = local_db.Message(**{
+                    new_msg = local_db.Message(**{
                         "address_from": from_user_address,
                         "address_to": to_user_address,
                         "blockindex": block_index,
@@ -155,9 +157,23 @@ def parse_msg(rpc_raw, local_db_session, op_return_data, found_data, from_user_a
                         "key": op_return_data[5:],
                         "time": block_time
                     })
-                    local_db_session.add(new_pub_key)
+                    local_db_session.add(new_msg)
                     local_db_session.commit()
                     break
+
+def parse_blg(rpc_raw, local_db_session, op_return_data, from_user_address, block_index, tx_id, block_time):
+    if op_return_data[2:5] == "blg": #Non-Encrypted Blog Post
+        if not local_db_session.query(local_db.Broadcast).filter(local_db.Broadcast.key==op_return_data[5:]).first():
+            new_broadcast = local_db.Broadcast(**{
+                "address_from": from_user_address,
+                "blockindex": block_index,
+                "tx_id": tx_id,
+                "msg": "",
+                "key": op_return_data[5:],
+                "time": block_time
+            })
+            local_db_session.add(new_broadcast)
+            local_db_session.commit()
 
 def submit_opreturn(rpc_connection, address, data):
     from bitcoin.core import CTxIn, CMutableTxOut, MAX_MONEY, CScript, CMutableTransaction, COIN, b2x, b2lx

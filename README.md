@@ -35,7 +35,7 @@ Windows
  - ``` C:\Python27\Scripts\pip.exe install -r requirements.txt ```
 
 ### Run the app
- - ``` $ python peermessage.py ```
+ - ``` $ python peerapps.py ```
 
 
 ## Changelog
