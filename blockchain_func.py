@@ -1,13 +1,17 @@
-import os
-import local_db, external_db
+import local_db
 from bitcoinrpc.authproxy import JSONRPCException
 
 from sqlalchemy.sql import update
 import json
 import time
-import helpers
+import os
 
-import shutil
+blockchain_module_scanners = []
+for name in os.listdir("./modules/"):
+    if os.path.isfile("./modules/"+name+"/opreturn_scanner.py"):
+        exec "from modules."+name+".opreturn_scanner import parse as "+name+"_moduleparse"
+        blockchain_module_scanners.append(name+"_moduleparse")
+        #rootApp.merge(globals()[name+"_moduleparse"])
 
 def scan_block(rpc_raw, local_db_session):
     bkscan = local_db_session.query(local_db.BlockchainScan).first() #Attempt to pick up where we left off.
@@ -92,87 +96,9 @@ def parse_transaction(rpc_raw, local_db_session, tx_id, block_index, block_time)
                     addresses.append(input_raw_tx['vout'][inp['vout']]['scriptPubKey']['addresses'][0])
                 from_user_address = addresses[0]
 
-                parse_pka(rpc_raw, local_db_session, op_return_data, from_user_address, block_index, tx_id, block_time)
-                parse_msg(rpc_raw, local_db_session, op_return_data, from_user_address, block_index, tx_id, block_time)
-                parse_blg(rpc_raw, local_db_session, op_return_data, from_user_address, block_index, tx_id, block_time)
+                for b in blockchain_module_scanners:
+                    globals()[b](rpc_raw, local_db_session, op_return_data, from_user_address, block_index, tx_id, block_time)
 
-def parse_pka(rpc_raw, local_db_session, op_return_data, from_user_address, block_index, tx_id, block_time):
-    found_data = external_db.get_data(op_return_data[5:])
-    if op_return_data[2:5] == "pka": #Public Key Announcement
-        if not local_db_session.query(local_db.PublicKey).filter(local_db.PublicKey.key==op_return_data[5:]).first():
-            format_public_key = helpers.format_incoming(found_data)
-            try:
-                verified_public_key = helpers.verify_and_strip_signature(rpc_raw, format_public_key, from_user_address)
-            except AssertionError:
-                print "Signature invalid, skip public key."
-                return
-
-            #delete existing from disk and database
-            shutil.rmtree('/public_keys/gpg_'+from_user_address, ignore_errors=True)
-            local_db_session.query(local_db.PublicKey).filter(local_db.PublicKey.address==from_user_address).delete()
-            local_db_session.commit()
-
-            helpers.save_public_key(from_user_address, verified_public_key)
-
-            new_pub_key = local_db.PublicKey(**{
-                "address": from_user_address,
-                "blockindex": block_index,
-                "tx_id": tx_id,
-                "key": op_return_data[5:],
-                "time": block_time
-            })
-            local_db_session.add(new_pub_key)
-            local_db_session.commit()
-
-def parse_msg(rpc_raw, local_db_session, op_return_data, from_user_address, block_index, tx_id, block_time):
-    found_data = external_db.get_data(op_return_data[5:])
-    if op_return_data[2:5] == "msg": #Encrypted Message
-        if not local_db_session.query(local_db.Message).filter(local_db.Message.key==op_return_data[5:]).first():
-            if not found_data:
-                print "Unable to retrieve message, skipping"
-                return
-            formatted_message = helpers.format_incoming(found_data)
-            try:
-                verified_message = helpers.verify_and_strip_signature(rpc_raw, formatted_message, from_user_address)
-            except AssertionError:
-                print "Signature invalid, skip message."
-                return
-            except AttributeError:
-                print "Unable to pull message from external data source."
-                return
-            my_addresses = []
-            for name in os.listdir("./my_keys/"):
-                if "gpg_" in name:
-                    my_addresses.append(name.replace("gpg_", ""))
-            for to_user_address in my_addresses:
-                dec_message = helpers.decrypt_string(verified_message, to_user_address)
-                if dec_message:
-                    new_msg = local_db.Message(**{
-                        "address_from": from_user_address,
-                        "address_to": to_user_address,
-                        "blockindex": block_index,
-                        "tx_id": tx_id,
-                        "msg": dec_message.decode('utf8'),
-                        "key": op_return_data[5:],
-                        "time": block_time
-                    })
-                    local_db_session.add(new_msg)
-                    local_db_session.commit()
-                    break
-
-def parse_blg(rpc_raw, local_db_session, op_return_data, from_user_address, block_index, tx_id, block_time):
-    if op_return_data[2:5] == "blg": #Non-Encrypted Blog Post
-        if not local_db_session.query(local_db.Broadcast).filter(local_db.Broadcast.key==op_return_data[5:]).first():
-            new_broadcast = local_db.Broadcast(**{
-                "address_from": from_user_address,
-                "blockindex": block_index,
-                "tx_id": tx_id,
-                "msg": "",
-                "key": op_return_data[5:],
-                "time": block_time
-            })
-            local_db_session.add(new_broadcast)
-            local_db_session.commit()
 
 def submit_opreturn(rpc_connection, address, data):
     from bitcoin.core import CTxIn, CMutableTxOut, MAX_MONEY, CScript, CMutableTransaction, COIN, b2x, b2lx
