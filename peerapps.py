@@ -133,6 +133,7 @@ def start_webserver():
             exec "from modules."+name+".server import moduleApp as "+name+"_moduleApp" in globals(), locals()
             rootApp.merge(locals()[name+"_moduleApp"])
 
+    webbrowser.open("http://127.0.0.1:8011/setup")
     rootApp.run(host='127.0.0.1', port=8011, server='cherrypy')
 
 def scan_blockchain():
