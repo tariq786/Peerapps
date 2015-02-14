@@ -11,6 +11,9 @@ PeerMessage
 ### Install Python 2.7.X
  - [Link](https://www.python.org/download/releases/2.7.8/)
 
+### Install wxPython
+ - [Link](http://www.wxpython.org/download.php)
+
 ### Install OpenSSL
 OSX
  - Install [homebrew package manager](http://brew.sh/)
