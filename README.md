@@ -1,7 +1,8 @@
-PeerMessage
+PeerApps
 ===
 
- - PeerMessage is a data application built on the Peercoin blockchain. 
+ - PeerApps is a data application framework built on the Peercoin blockchain.
+ - Learn more about our individual modules (PeerMessage, PeerBlog, etc) by going to the modules/ directory and scoping their READMEs.
  - Learn more about Peercoin from [here](http://peercoin.net/), and check out our forums at [Peercointalk](http://peercointalk.org/).
  - NOTE! We are currently in BETA. We are using the Bitcoin blockchain for testing until op_return/bitcoin 0.8 gets merged into Peercoin. This app will not currently work with Peercoin. Even though the app uses the the text "Peercoin" in several places, we are actually using Bitcoin.
  - Check the "Issues" tab to see the next several things I'll be working on.
