@@ -144,7 +144,7 @@ def scan_blockchain():
     rpc_raw = rpcRawProxy(helpers.get_rpc_url())
     while True:
         latest_block, blocks_left = blockchain_func.scan_block(rpc_raw, local_db_session)
-        if blocks_left == 0:
+        if latest_block:
             print "On the latest block, sleeping for 10 seconds"
             time.sleep(10)
 
