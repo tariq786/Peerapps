@@ -35,11 +35,3 @@ class Message(Base):
     msg = Column(Text())
     key = Column(String(250), primary_key=True)
     time = Column(Integer, default=_get_timestamp)
-
-class BlockchainScan(Base):
-    __tablename__ = 'blockchain_scan'
-    last_index = Column(Integer, primary_key=True)
-
-class MemPoolScan(Base):
-    __tablename__ = 'mempool_scan'
-    txids_scanned = Column(Text(), primary_key=True)
