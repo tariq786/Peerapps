@@ -40,6 +40,55 @@ def delete_message():
         "status": "success"
     })
 
+@moduleApp.route('/remove_from_spamlist', method='POST')
+def remove_from_spamlist():
+    local_db_session = local_db.get_session()
+    address = request.forms.get('address')
+    local_db_session.query(local_db.Ignore).filter(local_db.Ignore.address==unicode(address)).delete()
+    local_db_session.commit()
+
+    return json.dumps({
+        "status": "success"
+    })
+
+@moduleApp.route('/mark_address_as_spam', method='POST')
+def mark_address_as_spam():
+    """
+        Marks an address as a spammer. This will delete all messages from this address, and ignore future messages from them.
+    """
+    local_db_session = local_db.get_session()
+    address = request.forms.get('address')
+    local_db_session.query(local_db.Message).filter(local_db.Message.address_from==unicode(address)).delete()
+    local_db_session.commit()
+
+    new_spam_entry = local_db.Ignore(**{
+        "address": address
+    })
+    local_db_session.add(new_spam_entry)
+    local_db_session.commit()
+
+    return json.dumps({
+        "status": "success"
+    })
+
+@moduleApp.route('/get_spamlist', method='POST')
+def get_spamlist():
+    """
+        Get list of all addresses you marked as spam
+    """
+    local_db_session = local_db.get_session()
+    spammers = local_db_session.query(local_db.Ignore).order_by(local_db.Ignore.time.desc())
+    results = []
+    for m in spammers:
+        results.append({
+            "address": m.address,
+            "time": m.time
+        })
+    return json.dumps({
+        "status": "success",
+        "data": results
+    })
+
 @moduleApp.route('/get_messages', method='POST')
 def get_messages():
     """
@@ -164,3 +213,7 @@ def get_addresses():
 @moduleApp.route('/peermessage', method='GET')
 def peermessage():
     return static_file("templates/peermessage.html", root='./modules/peermessage/')
+
+@moduleApp.route('/spamlist', method='GET')
+def spamlist():
+    return static_file("templates/spamlist.html", root='./modules/peermessage/')

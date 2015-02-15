@@ -12,9 +12,7 @@ class MyKey(Base):
 
 class Ignore(Base): #spamlist
     __tablename__ = 'ignore'
-    address = Column(String(250))
-    tag = Column(String(250))
-    key = Column(String(250), primary_key=True)
+    address = Column(String(250), primary_key=True)
     time = Column(Integer, default=_get_timestamp)
 
 class PublicKey(Base):

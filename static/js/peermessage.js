@@ -33,6 +33,27 @@ function delete_message(tx_id) {
     }
 }
 
+function mark_address_as_spammer(address) {
+    if(confirm("Are you sure? All your messages from this address will be deleted.")) {
+        jQuery.ajax({
+            type: "POST",
+            url: "/mark_address_as_spam",
+            dataType: "json",
+            data: {
+                "address": address
+            },
+            success: function(data) {
+                get_messages();
+            },
+            error: function (e) {
+                console.log("error", e);
+                alert("Error marking address as spammer.");
+            }
+        });
+
+    }
+}
+
 function reply_to_message(id) {
     $('#new_message_address').val(id);
     $('#new_message').focus();
