@@ -3,6 +3,7 @@ import helpers, blockchain_func
 from bitcoin.rpc import Proxy as rpcProcessedProxy
 from bitcoinrpc.authproxy import AuthServiceProxy as rpcRawProxy
 import local_db
+import external_db
 import time
 import os
 
@@ -81,7 +82,7 @@ def transmit_message():
 
     enc_message += "|" + helpers.sign_string(rpc_raw, enc_message, from_address)
     enc_message = helpers.format_outgoing(enc_message)
-    opreturn_key = local_db.post_data(enc_message)
+    opreturn_key = external_db.post_data(enc_message)
 
     op_return_data = "pm" #program code (peermessage), 2 chars
     op_return_data += "msg" #opcode (message), 3 chars
@@ -104,7 +105,7 @@ def publish_pk():
     rpc_raw = rpcRawProxy(helpers.get_rpc_url())
     pub_key += "|" + helpers.sign_string(rpc_raw, pub_key, address)
     pub_key = helpers.format_outgoing(pub_key)
-    opreturn_key = local_db.post_data(pub_key)
+    opreturn_key = external_db.post_data(pub_key)
 
     op_return_data = "pm" #program code (peermessage), 2 chars
     op_return_data += "pka" #opcode (public key announce), 3 chars
