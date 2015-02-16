@@ -24,9 +24,9 @@ Peermessage is a messaging app, similar in spirit to BitMessage or GPG-encrypted
  - Other clients see this transaction on the Peercoin blockchain originating from Bob's Peercoin address. They extract the payload key, download the payload from the external data store, and verify the signature attached to the payload with Bob's Peercoin address. If it matches, they store that GPG public key locally as attached to Bob's Peercoin address.
 
 ### Publishing a Message
- - Bob wants to send a message to Alice, who he knows owns the Peercoin address (3ALICEWpEZ73CNmQviecrnyiWrnqRhWNLy).
+ - Bob wants to send a message to Alice, who he knows owns the Peercoin address 3ALICEWpEZ73CNmQviecrnyiWrnqRhWNLy.
  - His Peermessage client has been constantly monitoring the blockchain, and saw that Alice published her public key (following the steps above) earlier. Peermessage verified her signature, and now has her GPG public key stored locally for Bob to use.
- - Bob write's a message to Alice, "Hi Alice!", and hits "Submit Message". Peermessage takes this message, encrypts it with Alice's GPG public key, signs the message with Bob's signature from his Peercoin address, and appends the signature to the string - resulting in a string we'll call the payload. The payload is hashed to create a payload key.
+ - Bob writes a message to Alice, "Hi Alice!", and hits "Submit Message". Peermessage takes this message, encrypts it with Alice's GPG public key, signs the message with Bob's signature from his Peercoin address, and appends the signature to the string - resulting in a string we'll call the payload. The payload is hashed to create a payload key.
 
 ```
 encrypted_message = GPG_encrypt("Hi Alice!", Alice_gpg_public_key)
