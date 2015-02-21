@@ -13,6 +13,18 @@ for name in os.listdir("./modules/"):
         blockchain_module_scanners.append(name+"_moduleparse")
         #rootApp.merge(globals()[name+"_moduleparse"])
 
+def get_blockchain_scan_status(rpc_raw, local_db_session):
+    bkscan = local_db_session.query(local_db.BlockchainScan).first() #Attempt to pick up where we left off.
+    if not bkscan: #First scan!
+        bkscan = local_db.BlockchainScan(last_index=341355)
+        local_db_session.add(bkscan)
+        local_db_session.commit()
+    current_index = bkscan.last_index
+    blockcount = rpc_raw.getblockcount()
+    on_latest_block = True if current_index >= blockcount else False
+    return on_latest_block, blockcount - current_index
+
+
 def scan_block(rpc_raw, local_db_session):
     bkscan = local_db_session.query(local_db.BlockchainScan).first() #Attempt to pick up where we left off.
     if not bkscan: #First scan!
@@ -31,7 +43,7 @@ def scan_block(rpc_raw, local_db_session):
             mpscan = local_db.MemPoolScan(txids_scanned=json.dumps({}))
             local_db_session.add(mpscan)
             local_db_session.commit()
-            
+
         #get tx_ids we already scanned in mempool.
         processed_transactions = json.loads(mpscan.txids_scanned)
 
@@ -56,7 +68,7 @@ def scan_block(rpc_raw, local_db_session):
             local_db_session.execute(u)
             local_db_session.commit()
             processed_transactions = {}
-        
+
     except JSONRPCException:
         pass #at last block
 

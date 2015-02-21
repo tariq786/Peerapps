@@ -33,6 +33,27 @@ function delete_message(tx_id) {
     }
 }
 
+function mark_address_as_spammer(address) {
+    if(confirm("Are you sure? All your messages from this address will be deleted.")) {
+        jQuery.ajax({
+            type: "POST",
+            url: "/mark_address_as_spam",
+            dataType: "json",
+            data: {
+                "address": address
+            },
+            success: function(data) {
+                get_messages();
+            },
+            error: function (e) {
+                console.log("error", e);
+                alert("Error marking address as spammer.");
+            }
+        });
+
+    }
+}
+
 function reply_to_message(id) {
     $('#new_message_address').val(id);
     $('#new_message').focus();
@@ -172,22 +193,22 @@ function check_setup_status() {
     });
 }
 
-function scan_blockchain() {
+function blockchain_scan_status() {
     jQuery.ajax({
         type: "POST",
-        url: "/scan_blockchain",
+        url: "/blockchain_scan_status",
         dataType: "json",
         data: {},
         success: function(data) {
             if (data.latest_block) {
                 jQuery('#blockchain_status').html('Up to date <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>');
                 jQuery('#blockchain_status').css('color', 'green');
-                setTimeout("scan_blockchain()", 10000);
+                setTimeout("blockchain_scan_status()", 10000);
             }
             else {
                 jQuery('#blockchain_status').html('Scanning '+data.blocks_left+' blocks <span class="glyphicon glyphicon-search" aria-hidden="true"></span>');
                 jQuery('#blockchain_status').css('color', 'red');
-                setTimeout("scan_blockchain()", 50);
+                setTimeout("blockchain_scan_status()", 3000);
             }
         },
         error: function (e) {
@@ -255,7 +276,7 @@ $(document).ready(function(){
             console.log("error", e);
         }
     });
-    scan_blockchain();
+    blockchain_scan_status();
 
     $( "#new_message_address" ).autocomplete({
         source: "autocomplete_address/",

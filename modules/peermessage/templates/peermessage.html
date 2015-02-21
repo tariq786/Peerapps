@@ -116,7 +116,9 @@
         <div class="col-sm-4">
           <div class="panel panel-success" id="dropbox_panel">
             <div class="panel-heading">
-              <h3 class="panel-title">Your Messages </h3>
+              <h3 class="panel-title">Your Messages
+                <span class="timeago">[<a href="/spamlist">Manage Spamlist</a>]</span>
+              </h3>
             </div>
             <div class="panel-body" id="your_messages">
             </div>
@@ -149,6 +151,7 @@
         <span class="time_ago" style="float:right;">
         [<a href="javascript:void(0)" onclick="reply_to_message('{{ address_from }}')">Reply</a>]
         [<a href="javascript:void(0)" onclick="delete_message('{{ tx_id }}')">Delete</a>]
+        [<a href="javascript:void(0)" onclick="mark_address_as_spammer('{{ address_from }}')">Spam</a>]
         </span><br />
         <br />
         <pre>{{ msg }}</pre>

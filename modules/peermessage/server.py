@@ -3,6 +3,7 @@ import helpers, blockchain_func
 from bitcoin.rpc import Proxy as rpcProcessedProxy
 from bitcoinrpc.authproxy import AuthServiceProxy as rpcRawProxy
 import local_db
+import external_db
 import time
 import os
 
@@ -37,6 +38,55 @@ def delete_message():
     local_db_session.commit()
     return json.dumps({
         "status": "success"
+    })
+
+@moduleApp.route('/remove_from_spamlist', method='POST')
+def remove_from_spamlist():
+    local_db_session = local_db.get_session()
+    address = request.forms.get('address')
+    local_db_session.query(local_db.Ignore).filter(local_db.Ignore.address==unicode(address)).delete()
+    local_db_session.commit()
+
+    return json.dumps({
+        "status": "success"
+    })
+
+@moduleApp.route('/mark_address_as_spam', method='POST')
+def mark_address_as_spam():
+    """
+        Marks an address as a spammer. This will delete all messages from this address, and ignore future messages from them.
+    """
+    local_db_session = local_db.get_session()
+    address = request.forms.get('address')
+    local_db_session.query(local_db.Message).filter(local_db.Message.address_from==unicode(address)).delete()
+    local_db_session.commit()
+
+    new_spam_entry = local_db.Ignore(**{
+        "address": address
+    })
+    local_db_session.add(new_spam_entry)
+    local_db_session.commit()
+
+    return json.dumps({
+        "status": "success"
+    })
+
+@moduleApp.route('/get_spamlist', method='POST')
+def get_spamlist():
+    """
+        Get list of all addresses you marked as spam
+    """
+    local_db_session = local_db.get_session()
+    spammers = local_db_session.query(local_db.Ignore).order_by(local_db.Ignore.time.desc())
+    results = []
+    for m in spammers:
+        results.append({
+            "address": m.address,
+            "time": m.time
+        })
+    return json.dumps({
+        "status": "success",
+        "data": results
     })
 
 @moduleApp.route('/get_messages', method='POST')
@@ -81,7 +131,7 @@ def transmit_message():
 
     enc_message += "|" + helpers.sign_string(rpc_raw, enc_message, from_address)
     enc_message = helpers.format_outgoing(enc_message)
-    opreturn_key = local_db.post_data(enc_message)
+    opreturn_key = external_db.post_data(enc_message)
 
     op_return_data = "pm" #program code (peermessage), 2 chars
     op_return_data += "msg" #opcode (message), 3 chars
@@ -104,7 +154,7 @@ def publish_pk():
     rpc_raw = rpcRawProxy(helpers.get_rpc_url())
     pub_key += "|" + helpers.sign_string(rpc_raw, pub_key, address)
     pub_key = helpers.format_outgoing(pub_key)
-    opreturn_key = local_db.post_data(pub_key)
+    opreturn_key = external_db.post_data(pub_key)
 
     op_return_data = "pm" #program code (peermessage), 2 chars
     op_return_data += "pka" #opcode (public key announce), 3 chars
@@ -163,3 +213,7 @@ def get_addresses():
 @moduleApp.route('/peermessage', method='GET')
 def peermessage():
     return static_file("templates/peermessage.html", root='./modules/peermessage/')
+
+@moduleApp.route('/spamlist', method='GET')
+def spamlist():
+    return static_file("templates/spamlist.html", root='./modules/peermessage/')

@@ -104,6 +104,7 @@ def edit_config(forced_updates, optional_updates=None):
                 del optional_updates[k]
             else:
                 new_file_contents += orig_line
+        new_file_contents += "\n"
         for k,v in forced_updates.items():
             new_file_contents += k + "=" + v + "\n"
         if optional_updates:

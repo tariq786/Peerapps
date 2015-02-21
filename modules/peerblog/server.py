@@ -2,7 +2,7 @@ import json
 import helpers, blockchain_func
 from bitcoin.rpc import Proxy as rpcProcessedProxy
 from bitcoinrpc.authproxy import AuthServiceProxy as rpcRawProxy
-import local_db
+import local_db, external_db
 
 from bottle import static_file, request, Bottle
 moduleApp = Bottle()
@@ -140,7 +140,7 @@ def submit_blogpost():
 
     message += "|" + helpers.sign_string(rpc_raw, message, from_address)
     message = helpers.format_outgoing(message)
-    opreturn_key = local_db.post_data(message)
+    opreturn_key = external_db.post_data(message)
 
     op_return_data = "pm" #program code (peermessage), 2 chars
     op_return_data += "blg" #opcode (blogpost), 3 chars

@@ -1,5 +1,5 @@
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, Column, Integer, Text
 import time
 from sqlalchemy.orm import sessionmaker
 
@@ -17,6 +17,14 @@ def setup():
 def get_session():
     DBSession = sessionmaker(bind=engine)
     return DBSession()
+
+class BlockchainScan(Base):
+    __tablename__ = 'blockchain_scan'
+    last_index = Column(Integer, primary_key=True)
+
+class MemPoolScan(Base):
+    __tablename__ = 'mempool_scan'
+    txids_scanned = Column(Text(), primary_key=True)
 
 import os
 for name in os.listdir("./modules/"):
