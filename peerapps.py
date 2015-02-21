@@ -128,6 +128,7 @@ def start_webserver():
     def send_static(filename):
         return static_file(filename, root='./static/')
 
+    #Load all sub-modules url paths into webserver
     for name in os.listdir("./modules/"):
         if os.path.isfile("./modules/"+name+"/server.py"):
             exec "from modules."+name+".server import moduleApp as "+name+"_moduleApp" in globals(), locals()
