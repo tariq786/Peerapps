@@ -53,6 +53,7 @@ def get_service_status():
         conf['rpcpassword'] = "*******"
     try:
         rpc_raw = AuthServiceProxy(get_rpc_url())
+        #TODO update this to a valid peercoin op_return transaction
         rpc_raw.decoderawtransaction(rpc_raw.getrawtransaction("576e6802bc6787183a329c3ebc8c7189957ab993b9cffbacb8b121f34c40c1d0"))
         conf['index_status'] = "good"
     except:
@@ -76,18 +77,18 @@ def get_service_status():
 
 def edit_config(forced_updates, optional_updates=None):
     if platform.system() == 'Darwin':
-        btc_conf_file = os.path.expanduser('~/Library/Application Support/Bitcoin/')
+        btc_conf_file = os.path.expanduser('~/Library/Application Support/PPCoin/')
     elif platform.system() == 'Windows':
-        btc_conf_file = os.path.join(os.environ['APPDATA'], 'Bitcoin')
+        btc_conf_file = os.path.join(os.environ['APPDATA'], 'PPCoin')
     else:
-        btc_conf_file = os.path.expanduser('~/.bitcoin')
-    btc_conf_file = os.path.join(btc_conf_file, 'bitcoin.conf')
+        btc_conf_file = os.path.expanduser('~/.ppcoin')
+    btc_conf_file = os.path.join(btc_conf_file, 'ppcoin.conf')
 
     new_file_contents = ""
 
-    # Extract contents of bitcoin.conf to build service_url
+    # Extract contents of ppcoin.conf to build service_url
     with open(btc_conf_file, 'r') as fd:
-        # Bitcoin Core accepts empty rpcuser, not specified in btc_conf_file
+        # PPCoin Core accepts empty rpcuser, not specified in btc_conf_file
         for line in fd.readlines():
             orig_line = line
             if '=' not in line:
@@ -115,16 +116,16 @@ def edit_config(forced_updates, optional_updates=None):
 
 def get_config():
     if platform.system() == 'Darwin':
-        btc_conf_file = os.path.expanduser('~/Library/Application Support/Bitcoin/')
+        btc_conf_file = os.path.expanduser('~/Library/Application Support/PPCoin/')
     elif platform.system() == 'Windows':
-        btc_conf_file = os.path.join(os.environ['APPDATA'], 'Bitcoin')
+        btc_conf_file = os.path.join(os.environ['APPDATA'], 'PPCoin')
     else:
-        btc_conf_file = os.path.expanduser('~/.bitcoin')
-    btc_conf_file = os.path.join(btc_conf_file, 'bitcoin.conf')
+        btc_conf_file = os.path.expanduser('~/.ppcoin')
+    btc_conf_file = os.path.join(btc_conf_file, 'ppcoin.conf')
 
-    # Extract contents of bitcoin.conf to build service_url
+    # Extract contents of ppcoin.conf to build service_url
     with open(btc_conf_file, 'r') as fd:
-        # Bitcoin Core accepts empty rpcuser, not specified in btc_conf_file
+        # PPCoin Core accepts empty rpcuser, not specified in btc_conf_file
         conf = {'rpcuser': ""}
         for line in fd.readlines():
             if '#' in line:
@@ -134,7 +135,7 @@ def get_config():
             k, v = line.split('=', 1)
             conf[k.strip()] = v.strip()
 
-        service_port = 8332
+        service_port = 9902
         conf['rpcport'] = int(conf.get('rpcport', service_port))
         conf['rpcssl'] = conf.get('rpcssl', '0')
 
