@@ -7,11 +7,18 @@ import time
 import os
 
 blockchain_module_scanners = []
-for name in os.listdir("./modules/"):
-    if os.path.isfile("./modules/"+name+"/opreturn_scanner.py"):
-        exec "from modules."+name+".opreturn_scanner import parse as "+name+"_moduleparse"
-        blockchain_module_scanners.append(name+"_moduleparse")
-        #rootApp.merge(globals()[name+"_moduleparse"])
+
+#Static load
+from modules.peerblog.opreturn_scanner import parse as peerblog_moduleparse
+blockchain_module_scanners.append(peerblog_moduleparse)
+from modules.peermessage.opreturn_scanner import parse as peermessage_moduleparse
+blockchain_module_scanners.append(peermessage_moduleparse)
+
+#Dynamic Load
+#for name in os.listdir("./modules/"):
+#    if os.path.isfile("./modules/"+name+"/opreturn_scanner.py"):
+#        exec "from modules."+name+".opreturn_scanner import parse as "+name+"_moduleparse"
+#        blockchain_module_scanners.append(name+"_moduleparse")
 
 def get_blockchain_scan_status(rpc_raw, local_db_session):
     bkscan = local_db_session.query(local_db.BlockchainScan).first() #Attempt to pick up where we left off.

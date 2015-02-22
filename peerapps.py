@@ -129,10 +129,20 @@ def start_webserver():
         return static_file(filename, root='./static/')
 
     #Load all sub-modules url paths into webserver
-    for name in os.listdir("./modules/"):
-        if os.path.isfile("./modules/"+name+"/server.py"):
-            exec "from modules."+name+".server import moduleApp as "+name+"_moduleApp" in globals(), locals()
-            rootApp.merge(locals()[name+"_moduleApp"])
+
+    #Static load
+    from modules.peerblog.server import moduleApp as peerblog_moduleApp
+    rootApp.merge(peerblog_moduleApp)
+    from modules.peermessage.server import moduleApp as peermessage_moduleApp
+    rootApp.merge(peermessage_moduleApp)
+    from modules.setup.server import moduleApp as setup_moduleApp
+    rootApp.merge(setup_moduleApp)
+
+    #Dynamic Load
+    #for name in os.listdir("./modules/"):
+    #    if os.path.isfile("./modules/"+name+"/server.py"):
+    #        exec "from modules."+name+".server import moduleApp as "+name+"_moduleApp" in globals(), locals()
+    #        rootApp.merge(locals()[name+"_moduleApp"])
 
     webbrowser.open("http://127.0.0.1:8011/setup")
     rootApp.run(host='127.0.0.1', port=8011, server='cherrypy')

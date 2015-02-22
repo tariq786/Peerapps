@@ -26,7 +26,12 @@ class MemPoolScan(Base):
     __tablename__ = 'mempool_scan'
     txids_scanned = Column(Text(), primary_key=True)
 
-import os
-for name in os.listdir("./modules/"):
-    if os.path.isfile("./modules/"+name+"/db_schema.py"):
-        exec "from modules."+name+".db_schema import *"
+#Static load
+from modules.peerblog.db_schema import *
+from modules.peermessage.db_schema import *
+
+#Dynamic Load
+#import os
+#for name in os.listdir("./modules/"):
+#    if os.path.isfile("./modules/"+name+"/db_schema.py"):
+#        exec "from modules."+name+".db_schema import *"
