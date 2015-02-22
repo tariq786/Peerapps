@@ -23,7 +23,7 @@ blockchain_module_scanners.append(peermessage_moduleparse)
 def get_blockchain_scan_status(rpc_raw, local_db_session):
     bkscan = local_db_session.query(local_db.BlockchainScan).first() #Attempt to pick up where we left off.
     if not bkscan: #First scan!
-        bkscan = local_db.BlockchainScan(last_index=160000)
+        bkscan = local_db.BlockchainScan(last_index=135000)
         local_db_session.add(bkscan)
         local_db_session.commit()
     current_index = bkscan.last_index
@@ -35,7 +35,7 @@ def get_blockchain_scan_status(rpc_raw, local_db_session):
 def scan_block(rpc_raw, local_db_session):
     bkscan = local_db_session.query(local_db.BlockchainScan).first() #Attempt to pick up where we left off.
     if not bkscan: #First scan!
-        bkscan = local_db.BlockchainScan(last_index=160000)
+        bkscan = local_db.BlockchainScan(last_index=135000)
         local_db_session.add(bkscan)
         local_db_session.commit()
     current_index = bkscan.last_index
