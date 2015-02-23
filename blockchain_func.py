@@ -125,7 +125,7 @@ def submit_opreturn(rpc_connection, address, data):
 
     txouts = []
 
-    unspent = sorted([y for y in rpc_connection.listunspent(0) if str(y['address']) == address], key=lambda x: hash(x['amount']))
+    unspent = sorted([y for y in rpc_connection.listunspent(1) if str(y['address']) == address], key=lambda x: hash(x['amount']))
 
     txins = [CTxIn(unspent[-1]['outpoint'])]
 
@@ -147,6 +147,7 @@ def submit_opreturn(rpc_connection, address, data):
     assert r['complete']
     tx = r['tx']
 
-    print b2x(tx.serialize())
-    print len(tx.serialize()), 'bytes'
+
+    #print b2x(tx.serialize())
+    #print len(tx.serialize()), 'bytes'
     print(b2lx(rpc_connection.sendrawtransaction(tx)))
