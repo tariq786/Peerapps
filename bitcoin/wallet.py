@@ -41,7 +41,7 @@ class CBitcoinAddress(bitcoin.base58.CBase58Data):
         if nVersion == bitcoin.params.BASE58_PREFIXES['SCRIPT_ADDR']:
             self.__class__ = P2SHBitcoinAddress
 
-        elif nVersion == bitcoin.params.BASE58_PREFIXES['PUBKEY_ADDR'] or nVersion == 55:
+        elif nVersion == bitcoin.params.BASE58_PREFIXES['PUBKEY_ADDR'] or nVersion == 55 or nVersion == 111:
             self.__class__ = P2PKHBitcoinAddress
 
         else:
