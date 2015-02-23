@@ -97,9 +97,10 @@
 
                 <span class="glyphicon glyphicon-question-sign" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="" data-original-title="The password used for authentication to the json-rpc server. Can be anything, you don't need to remember it, but make it random, long, and secure."></span> rpcpassword:
                 <span id="rpcpassword"><img src="static/images/ajax-loader.gif"></span><br />
-                
+                <!--
                 <span class="glyphicon glyphicon-question-sign" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="" data-original-title="Must be set to True or 1 to tell your wallet to keep all transactions indexed so they can be scanned for messages. PeerMessage uses op_return transactions, which are immediately pruned if this is not set."></span> txindex:
                 <span id="txindex"><img src="static/images/ajax-loader.gif"></span><br />
+                -->
 
                 <br />
                 <button class="btn btn-success" id="automatically_setup_button" onclick="config_automatic_setup()" style="display:none">Automatically setup for me</button>
@@ -115,7 +116,7 @@
 
                 <span class="glyphicon glyphicon-question-sign" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="" data-original-title="Will show GOOD when your wallet is on and it's json rpc server is setup."></span> Connected to Wallet:
                 <span id="wallet_connected_status"><img src="static/images/ajax-loader.gif"></span><br /><br />
-                
+                <!--
                 <span class="glyphicon glyphicon-question-sign" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="" data-original-title="Whether or not we can see PeerMessage transactions in your blockchain. If bad, you need to ensure txindex=1 and then run a reindex."></span> Transaction Index:
                 <span id="index_status"><img src="static/images/ajax-loader.gif"></span><br /><br />
 
@@ -123,6 +124,7 @@
                 <span id="reindex"><img src="static/images/ajax-loader.gif"></span>
                 <br /><br />
                 <button class="btn btn-success" id="fix_transaction_index_button" onclick="fix_transaction_index()" style="display:none">Setup my Transaction Index</button>
+                -->
             </div>
           </div>
         </div><!-- /.col-sm-4 -->

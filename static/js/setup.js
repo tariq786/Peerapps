@@ -75,7 +75,7 @@ function update_config_visually(config) {
         $("#txindex").css("color", "green");
     }
     else {
-        any_invalid = true;
+        //any_invalid = true;
         $("#txindex").html('Missing! <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>');
         $("#txindex").css("color", "red");
     }
