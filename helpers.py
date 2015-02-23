@@ -31,7 +31,7 @@ def download_blg(rpc_raw, key, from_address):
 
 def download_blgs(rpc_raw, local_db_session):
     db_blogs = local_db_session.query(local_db.Broadcast).filter(local_db.Broadcast.msg == "").order_by(local_db.Broadcast.time.desc())
-    my_addresses = [x['address'] for x in rpc_raw.listunspent(0)]
+    my_addresses = [x['address'] for x in rpc_raw.listunspent(1)]
     for b in db_blogs:
         if b.address_from in my_addresses or local_db_session.query(local_db.Subscription).filter(local_db.Subscription.address == b.address_from).first():
 
@@ -136,7 +136,7 @@ def get_config():
             k, v = line.split('=', 1)
             conf[k.strip()] = v.strip()
 
-        service_port = 9902
+        service_port = 9904
         conf['rpcport'] = int(conf.get('rpcport', service_port))
         conf['rpcssl'] = conf.get('rpcssl', '0')
 

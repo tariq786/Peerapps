@@ -6,15 +6,13 @@ import json
 import time
 import os
 
-blockchain_module_scanners = []
 
 #Static load
 from modules.peerblog.opreturn_scanner import parse as peerblog_moduleparse
-blockchain_module_scanners.append(peerblog_moduleparse)
 from modules.peermessage.opreturn_scanner import parse as peermessage_moduleparse
-blockchain_module_scanners.append(peermessage_moduleparse)
 
 #Dynamic Load
+#blockchain_module_scanners = []
 #for name in os.listdir("./modules/"):
 #    if os.path.isfile("./modules/"+name+"/opreturn_scanner.py"):
 #        exec "from modules."+name+".opreturn_scanner import parse as "+name+"_moduleparse"
@@ -23,7 +21,7 @@ blockchain_module_scanners.append(peermessage_moduleparse)
 def get_blockchain_scan_status(rpc_raw, local_db_session):
     bkscan = local_db_session.query(local_db.BlockchainScan).first() #Attempt to pick up where we left off.
     if not bkscan: #First scan!
-        bkscan = local_db.BlockchainScan(last_index=160000)
+        bkscan = local_db.BlockchainScan(last_index=135000)
         local_db_session.add(bkscan)
         local_db_session.commit()
     current_index = bkscan.last_index
@@ -35,7 +33,7 @@ def get_blockchain_scan_status(rpc_raw, local_db_session):
 def scan_block(rpc_raw, local_db_session):
     bkscan = local_db_session.query(local_db.BlockchainScan).first() #Attempt to pick up where we left off.
     if not bkscan: #First scan!
-        bkscan = local_db.BlockchainScan(last_index=160000)
+        bkscan = local_db.BlockchainScan(last_index=135000)
         local_db_session.add(bkscan)
         local_db_session.commit()
     current_index = bkscan.last_index
@@ -115,8 +113,10 @@ def parse_transaction(rpc_raw, local_db_session, tx_id, block_index, block_time)
                     addresses.append(input_raw_tx['vout'][inp['vout']]['scriptPubKey']['addresses'][0])
                 from_user_address = addresses[0]
 
-                for b in blockchain_module_scanners:
-                    globals()[b](rpc_raw, local_db_session, op_return_data, from_user_address, block_index, tx_id, block_time)
+                peerblog_moduleparse(rpc_raw, local_db_session, op_return_data, from_user_address, block_index, tx_id, block_time)
+                peermessage_moduleparse(rpc_raw, local_db_session, op_return_data, from_user_address, block_index, tx_id, block_time)
+                #for b in blockchain_module_scanners:
+                #    globals()[b](rpc_raw, local_db_session, op_return_data, from_user_address, block_index, tx_id, block_time)
 
 
 def submit_opreturn(rpc_connection, address, data):
@@ -125,7 +125,7 @@ def submit_opreturn(rpc_connection, address, data):
 
     txouts = []
 
-    unspent = sorted([y for y in rpc_connection.listunspent(0) if str(y['address']) == address], key=lambda x: hash(x['amount']))
+    unspent = sorted([y for y in rpc_connection.listunspent(1) if str(y['address']) == address], key=lambda x: hash(x['amount']))
 
     txins = [CTxIn(unspent[-1]['outpoint'])]
 
@@ -134,22 +134,20 @@ def submit_opreturn(rpc_connection, address, data):
     change_pubkey = rpc_connection.validateaddress(address)['pubkey']
     change_out = CMutableTxOut(MAX_MONEY, CScript([change_pubkey, OP_CHECKSIG]))
 
-    digest_outs = [CMutableTxOut(0, CScript([OP_RETURN, data]))]
+    digest_outs = [CMutableTxOut(0.01*COIN, CScript([OP_RETURN, data]))]
 
     txouts = [change_out] + digest_outs
 
     tx = CMutableTransaction(txins, txouts)
 
-    FEE_PER_BYTE = 0.00025*COIN/1000
-    while True:
-        tx.vout[0].nValue = int(value_in - max(len(tx.serialize()) * FEE_PER_BYTE, 0.00011*COIN))
+    tx.vout[0].nValue = int(value_in - 0.02*COIN)
+    
+    print tx.serialize().encode('hex')
+    r = rpc_connection.signrawtransaction(tx)
+    assert r['complete']
+    tx = r['tx']
 
-        r = rpc_connection.signrawtransaction(tx)
-        assert r['complete']
-        tx = r['tx']
 
-        if value_in - tx.vout[0].nValue >= len(tx.serialize()) * FEE_PER_BYTE:
-            print b2x(tx.serialize())
-            print len(tx.serialize()), 'bytes'
-            print(b2lx(rpc_connection.sendrawtransaction(tx)))
-            break
+    #print b2x(tx.serialize())
+    #print len(tx.serialize()), 'bytes'
+    print(b2lx(rpc_connection.sendrawtransaction(tx)))
