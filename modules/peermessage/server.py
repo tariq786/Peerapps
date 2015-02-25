@@ -212,8 +212,8 @@ def get_addresses():
 
 @moduleApp.route('/peermessage', method='GET')
 def peermessage():
-    return static_file("templates/peermessage.html", root='./modules/peermessage/')
+    return static_file("peermessage.html", root='./static/templates/')
 
 @moduleApp.route('/spamlist', method='GET')
 def spamlist():
-    return static_file("templates/spamlist.html", root='./modules/peermessage/')
+    return static_file("spamlist.html", root='./static/templates/')
