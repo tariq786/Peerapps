@@ -1,7 +1,7 @@
 import json
 import helpers, blockchain_func
 from bitcoin.rpc import Proxy as rpcProcessedProxy
-from bitcoinrpc.authproxy import AuthServiceProxy as rpcRawProxy
+from bitcoinrpc.authproxy import JSONRPCException, AuthServiceProxy as rpcRawProxy
 import local_db
 import external_db
 import time
@@ -152,7 +152,14 @@ def publish_pk():
     except ValueError:
         return json.dumps({"status":"error", "message":"Must create GPG keys before publishing them!"})
     rpc_raw = rpcRawProxy(helpers.get_rpc_url())
-    pub_key += "|" + helpers.sign_string(rpc_raw, pub_key, address)
+    try:
+        pub_key += "|" + helpers.sign_string(rpc_raw, pub_key, address)
+    except JSONRPCException, e:
+        if "Please enter the wallet passphrase" in e.error['message']:
+            return json.dumps({"status":"error", "message":"Wallet locked.", "type":"wallet_locked"})
+        else:
+            return json.dumps({"status":"error", "message":"Error while trying to sign public key."})
+
     pub_key = helpers.format_outgoing(pub_key)
     opreturn_key = external_db.post_data(pub_key)
 
