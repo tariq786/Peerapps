@@ -136,7 +136,7 @@ def get_config():
             k, v = line.split('=', 1)
             conf[k.strip()] = v.strip()
 
-        service_port = 9902
+        service_port = 9904
         conf['rpcport'] = int(conf.get('rpcport', service_port))
         conf['rpcssl'] = conf.get('rpcssl', '0')
 
