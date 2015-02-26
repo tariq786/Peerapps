@@ -16,7 +16,7 @@ import bitcoin.core
 class MainParams(bitcoin.core.CoreChainParams):
     MESSAGE_START = b'\xf9\xbe\xb4\xd9'
     DEFAULT_PORT = 8333
-    RPC_PORT = 9904
+    RPC_PORT = 9902
     DNS_SEEDS = (('bitcoin.sipa.be', 'seed.bitcoin.sipa.be'),
                  ('bluematt.me', 'dnsseed.bluematt.me'),
                  ('dashjr.org', 'dnsseed.bitcoin.dashjr.org'),

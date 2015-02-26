@@ -46,4 +46,4 @@ def check_peercoin_conf():
 
 @moduleApp.route('/setup', method='GET')
 def setup():
-    return static_file("templates/setup.html", root='./modules/setup/')
+    return static_file("setup.html", root='./static/templates/')
