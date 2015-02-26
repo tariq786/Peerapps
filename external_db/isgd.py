@@ -11,6 +11,8 @@ def get_data(key):
     while True:
         print "Retrieving chunk..."
         key_suffix = ""
+        if iterations > 10:
+            return None #stop 'dem infinite loops
         if iterations > 0:
             #on all iterations after the first, append _# to key name
             key_suffix = "_"+str(iterations)

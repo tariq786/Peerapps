@@ -10,6 +10,8 @@ def get_data(key):
     iterations = 0
     while True:
         key_suffix = ""
+        if iterations > 10:
+            return None #stop 'dem infinite loops
         if iterations > 0:
             #on all iterations after the first, append -# to key name
             key_suffix = "-"+str(iterations)

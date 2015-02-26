@@ -152,4 +152,4 @@ def submit_blogpost():
 
 @moduleApp.route('/peerblog', method='GET')
 def peerblog():
-    return static_file("templates/peerblog.html", root='./modules/peerblog/')
+    return static_file("peerblog.html", root='./static/templates/')
