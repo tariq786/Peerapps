@@ -14,4 +14,4 @@ Mockjax is installed - which means all backend api calls are intercepted and ret
  - Submit a pull request to this repo adding a link to your forked repo in the community frontend section below.
 
 ## Community Frontends
- - [emeth original](http://github.com)
+ - [emeth: 3 column bootstrap](http://github.com)
