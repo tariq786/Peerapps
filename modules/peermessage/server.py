@@ -152,6 +152,8 @@ def publish_pk():
     except ValueError:
         return json.dumps({"status":"error", "message":"Must create GPG keys before publishing them!"})
     rpc_raw = rpcRawProxy(helpers.get_rpc_url())
+    if request.forms.get('wallet_passphrase', False):
+        rpc_raw.walletpassphrase(request.forms.get('wallet_passphrase'), 60)
     try:
         pub_key += "|" + helpers.sign_string(rpc_raw, pub_key, address)
     except JSONRPCException, e:

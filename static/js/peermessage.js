@@ -96,23 +96,33 @@ function submit_new_message() {
     });
 }
 
-function publish_pk() {
+function publish_pk(wallet_passphrase) {
     jQuery("#public_key_status_loading").html('<img src="static/images/ajax-loader.gif">');
     jQuery("#public_key_status_incomplete").hide();
     jQuery("#public_key_status_complete").hide();
+    var post_data = {
+        "address": $('#peercoin_address').val()
+    };
+    if (wallet_passphrase) {
+        post_data['wallet_passphrase'] = wallet_passphrase;
+    }
     jQuery.ajax({
         type: "POST",
         url: "/publish_pk",
         dataType: "json",
-        data: {
-            "address": $('#peercoin_address').val()
-        },
+        data: post_data,
         success: function(data) {
             if (data.status == "error") {
-                jQuery("#public_key_status_loading").html('');
-                jQuery("#public_key_status_incomplete").show();
-                jQuery("#public_key_status_complete").hide();
-                alert(data.message);
+                if ("type" in data && data.type == "wallet_locked") {
+                    var wallet_passphrase = window.prompt("Publishing your public key on the blockchain will cost 0.02 PPC.\n\nTo proceed, please enter your wallet passphrase:");
+                    publish_pk(wallet_passphrase);
+                }
+                else {
+                    jQuery("#public_key_status_loading").html('');
+                    jQuery("#public_key_status_incomplete").show();
+                    jQuery("#public_key_status_complete").hide();
+                    alert(data.message);
+                }
             }
             else {
                 jQuery("#public_key_status_loading").html('');
