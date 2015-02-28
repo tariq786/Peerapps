@@ -53,7 +53,7 @@ function get_spamlist() {
         success: function(data) {
             var html = "";
             if (data.data.length == 0) {
-                html += "No messages.";
+                html += "None.";
             }
             else {
                 jQuery.each(data.data, function(k,v){

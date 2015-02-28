@@ -129,7 +129,16 @@ def transmit_message():
     except IOError:
         return json.dumps({"status":"error", "msg":"No public key found for that address."})
 
-    enc_message += "|" + helpers.sign_string(rpc_raw, enc_message, from_address)
+    if request.forms.get('wallet_passphrase', False):
+        rpc_raw.walletpassphrase(request.forms.get('wallet_passphrase'), 60)
+    try:
+        enc_message += "|" + helpers.sign_string(rpc_raw, enc_message, from_address)
+    except JSONRPCException, e:
+        if "passphrase" in e.error['message']:
+            return json.dumps({"status":"error", "message":"Wallet locked.", "type":"wallet_locked"})
+        else:
+            return json.dumps({"status":"error", "message":"Error while trying to sign public key."})
+
     enc_message = helpers.format_outgoing(enc_message)
     opreturn_key = external_db.post_data(enc_message)
 
@@ -157,7 +166,7 @@ def publish_pk():
     try:
         pub_key += "|" + helpers.sign_string(rpc_raw, pub_key, address)
     except JSONRPCException, e:
-        if "Please enter the wallet passphrase" in e.error['message']:
+        if "passphrase" in e.error['message']:
             return json.dumps({"status":"error", "message":"Wallet locked.", "type":"wallet_locked"})
         else:
             return json.dumps({"status":"error", "message":"Error while trying to sign public key."})

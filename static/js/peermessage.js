@@ -59,25 +59,36 @@ function reply_to_message(id) {
     $('#new_message').focus();
 }
 
-function submit_new_message() {
+function submit_new_message(wallet_passphrase) {
 
     jQuery("#submit_message_loading").html('<img src="static/images/ajax-loader.gif">');
     jQuery("#submit_message_button").hide();
+
+    var post_data = {
+        "message": $('#new_message').val(),
+        "from_address": $('#peercoin_address').val(),
+        "to_address": $('#new_message_address').val()
+    };
+    if (wallet_passphrase) {
+        post_data['wallet_passphrase'] = wallet_passphrase;
+    }
 
     jQuery.ajax({
         type: "POST",
         url: "/transmit_message",
         dataType: "json",
-        data: {
-            "message": $('#new_message').val(),
-            "from_address": $('#peercoin_address').val(),
-            "to_address": $('#new_message_address').val()
-        },
+        data: post_data,
         success: function(data) {
             if (data.status == "error") {
-                alert(data.msg);
-                jQuery("#submit_message_loading").html('');
-                jQuery("#submit_message_button").show();
+                if ("type" in data && data.type == "wallet_locked") {
+                    var wallet_passphrase = window.prompt("Submitting a message on the blockchain will cost 0.02 PPC.\n\nTo proceed, please enter your wallet passphrase:");
+                    submit_new_message(wallet_passphrase);
+                }
+                else {
+                    alert(data.msg);
+                    jQuery("#submit_message_loading").html('');
+                    jQuery("#submit_message_button").show();
+                }
             }
             else {
                 jQuery("#submit_message_loading").html('');
