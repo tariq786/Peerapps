@@ -46,4 +46,4 @@ setup(
 
 if sys.platform == 'darwin':
     import os
-    os.system('cp -rf static/ dist/Peerapps.app/Contents/Resources/static/')
+    os.system('cp -rf frontend/ dist/Peerapps.app/Contents/Resources/frontend/')

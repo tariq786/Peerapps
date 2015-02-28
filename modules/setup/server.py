@@ -31,6 +31,6 @@ def check_peercoin_conf():
     conf = helpers.get_service_status()
     return json.dumps({"status":"success", "config":conf})
 
-@moduleApp.route('/setup', method='GET')
+@moduleApp.route('/setup.html', method='GET')
 def setup():
-    return static_file("setup.html", root='./static/templates/')
+    return static_file("setup.html", root='./frontend/')

@@ -1,4 +1,4 @@
-var enable_mockjax = false; //set to false to disable mockjax and use the real server
+var enable_mockjax = true; //set to false to disable mockjax and use the real server
 if (enable_mockjax) {
 
     $.mockjax({

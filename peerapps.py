@@ -33,12 +33,12 @@ class mainFrame(wx.Frame):
         self.Layout()
 
     def statusDisconnected(self):
-        icon1 = wx.Icon("static/images/peerapps_disconnected.png", wx.BITMAP_TYPE_PNG)
+        icon1 = wx.Icon("frontend/static/images/peerapps_disconnected.png", wx.BITMAP_TYPE_PNG)
         self.SetIcon(icon1)
         self.tskic.statusDisconnected()
 
     def statusConnected(self):
-        icon1 = wx.Icon("static/images/peerapps_disconnected.png", wx.BITMAP_TYPE_PNG)
+        icon1 = wx.Icon("frontend/static/images/peerapps_disconnected.png", wx.BITMAP_TYPE_PNG)
         self.SetIcon(icon1)
         self.tskic.statusConnected()
 
@@ -61,7 +61,7 @@ class MyTaskBarIcon(wx.TaskBarIcon):
 
         self.frame = frame
 
-        myimage = wx.Bitmap('static/images/peerapps.png', wx.BITMAP_TYPE_PNG)
+        myimage = wx.Bitmap('frontend/static/images/peerapps.png', wx.BITMAP_TYPE_PNG)
         submyimage = myimage.GetSubBitmap(wx.Rect(0,0,16,16))
         myicon = wx.EmptyIcon()
         myicon.CopyFromBitmap(submyimage)
@@ -75,14 +75,14 @@ class MyTaskBarIcon(wx.TaskBarIcon):
         self.Bind(wx.EVT_TASKBAR_LEFT_DOWN, self.OnLeftClick)
 
     def statusDisconnected(self):
-        myimage = wx.Bitmap('static/images/peerapps_disconnected.png', wx.BITMAP_TYPE_PNG)
+        myimage = wx.Bitmap('frontend/static/images/peerapps_disconnected.png', wx.BITMAP_TYPE_PNG)
         submyimage = myimage.GetSubBitmap(wx.Rect(0,0,16,16))
         myicon = wx.EmptyIcon()
         myicon.CopyFromBitmap(submyimage)
         self.SetIcon(myicon, 'PeerApps')
 
     def statusConnected(self):
-        myimage = wx.Bitmap('static/images/peerapps.png', wx.BITMAP_TYPE_PNG)
+        myimage = wx.Bitmap('frontend/static/images/peerapps.png', wx.BITMAP_TYPE_PNG)
         submyimage = myimage.GetSubBitmap(wx.Rect(0,0,16,16))
         myicon = wx.EmptyIcon()
         myicon.CopyFromBitmap(submyimage)
@@ -107,13 +107,13 @@ class MyTaskBarIcon(wx.TaskBarIcon):
         return tbmenu
 
     def GoToSetup(self, event):
-        webbrowser.open("http://127.0.0.1:8011/setup")
+        webbrowser.open("http://127.0.0.1:8011/setup.html")
 
     def GoToPeerMessage(self, event):
-        webbrowser.open("http://127.0.0.1:8011/peermessage")
+        webbrowser.open("http://127.0.0.1:8011/peermessage.html")
 
     def GoToPeerBlog(self, event):
-        webbrowser.open("http://127.0.0.1:8011/peerblog")
+        webbrowser.open("http://127.0.0.1:8011/peerblog.html")
 
     def GoToPeercoinTalk(self, event):
         webbrowser.open("http://www.peercointalk.org/")
@@ -148,7 +148,7 @@ def start_webserver():
 
     @rootApp.route('/static/:filename#.*#')
     def send_static(filename):
-        return static_file(filename, root='./static/')
+        return static_file(filename, root='./frontend/static/')
 
     #Load all sub-modules url paths into webserver
 
@@ -166,7 +166,7 @@ def start_webserver():
     #        exec "from modules."+name+".server import moduleApp as "+name+"_moduleApp" in globals(), locals()
     #        rootApp.merge(locals()[name+"_moduleApp"])
 
-    webbrowser.open("http://127.0.0.1:8011/setup")
+    webbrowser.open("http://127.0.0.1:8011/setup.html")
     rootApp.run(host='127.0.0.1', port=8011, server='cherrypy')
 
 def scan_blockchain():

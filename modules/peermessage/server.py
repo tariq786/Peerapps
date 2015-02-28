@@ -228,10 +228,10 @@ def get_addresses():
     addresses = rpc_raw.listunspent(0)
     return json.dumps({"status":"success", "data":addresses}, default=helpers.json_custom_parser)
 
-@moduleApp.route('/peermessage', method='GET')
+@moduleApp.route('/peermessage.html', method='GET')
 def peermessage():
-    return static_file("peermessage.html", root='./static/templates/')
+    return static_file("peermessage.html", root='./frontend/')
 
-@moduleApp.route('/spamlist', method='GET')
+@moduleApp.route('/spamlist.html', method='GET')
 def spamlist():
-    return static_file("spamlist.html", root='./static/templates/')
+    return static_file("spamlist.html", root='./frontend/')

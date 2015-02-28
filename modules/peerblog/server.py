@@ -159,6 +159,6 @@ def submit_blogpost():
     blockchain_func.submit_opreturn(rpc_processed, from_address, op_return_data)
     return json.dumps({"status":"success"})
 
-@moduleApp.route('/peerblog', method='GET')
+@moduleApp.route('/peerblog.html', method='GET')
 def peerblog():
-    return static_file("peerblog.html", root='./static/templates/')
+    return static_file("peerblog.html", root='./frontend/')
