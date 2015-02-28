@@ -125,7 +125,7 @@ def submit_opreturn(rpc_connection, address, data):
 
     txouts = []
 
-    unspent = sorted([y for y in rpc_connection.listunspent(1) if str(y['address']) == address], key=lambda x: hash(x['amount']))
+    unspent = sorted([y for y in rpc_connection.listunspent(0) if str(y['address']) == address], key=lambda x: hash(x['amount']))
 
     txins = [CTxIn(unspent[-1]['outpoint'])]
 

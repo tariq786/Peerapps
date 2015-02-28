@@ -119,24 +119,6 @@ function update_config_visually(config) {
         $("#wallet_connected_status").css("color", "green");
     }
 
-    if ("index_status" in config && config.index_status == "bad") {
-        if (wallet_running) {
-            $("#index_status").html('Bad <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>');
-            $("#index_status").css("color", "red");
-            $('#fix_transaction_index_button').show();
-        }
-        else {
-            $("#index_status").html('???');
-            $("#index_status").css("color", "red");
-            $('#fix_transaction_index_button').hide();
-        }
-    }
-    else {
-        $("#index_status").html('Good <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>');
-        $("#index_status").css("color", "green");
-        $('#fix_transaction_index_button').hide();
-    }
-
     if (any_invalid) {
         $("#automatically_setup_button").show();
     }
