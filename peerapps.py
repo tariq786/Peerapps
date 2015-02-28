@@ -20,10 +20,8 @@ class mainFrame(wx.Frame):
         style = wx.DEFAULT_FRAME_STYLE ^ wx.RESIZE_BORDER
         self.window = wx.Frame.__init__(self, parent, id, title, size=(450,555), style=style)
 
-        icon1 = wx.Icon("static/images/peercoin.png", wx.BITMAP_TYPE_PNG)
-        self.SetIcon(icon1)
-
         self.tskic = MyTaskBarIcon(self)
+        self.statusConnected()
 
         self.Bind(wx.EVT_CLOSE,self.OnClose)
 
@@ -33,6 +31,16 @@ class mainFrame(wx.Frame):
 
         wx.CallAfter(self.StartAsyncThreads)
         self.Layout()
+
+    def statusDisconnected(self):
+        icon1 = wx.Icon("static/images/peerapps_disconnected.png", wx.BITMAP_TYPE_PNG)
+        self.SetIcon(icon1)
+        self.tskic.statusDisconnected()
+
+    def statusConnected(self):
+        icon1 = wx.Icon("static/images/peerapps_disconnected.png", wx.BITMAP_TYPE_PNG)
+        self.SetIcon(icon1)
+        self.tskic.statusConnected()
 
     def onFullClose(self, event):
         for w in wx.GetTopLevelWindows():
@@ -53,7 +61,7 @@ class MyTaskBarIcon(wx.TaskBarIcon):
 
         self.frame = frame
 
-        myimage = wx.Bitmap('static/images/peercoin.png', wx.BITMAP_TYPE_PNG)
+        myimage = wx.Bitmap('static/images/peerapps.png', wx.BITMAP_TYPE_PNG)
         submyimage = myimage.GetSubBitmap(wx.Rect(0,0,16,16))
         myicon = wx.EmptyIcon()
         myicon.CopyFromBitmap(submyimage)
@@ -65,6 +73,20 @@ class MyTaskBarIcon(wx.TaskBarIcon):
 
         self.Bind(wx.EVT_MENU, self.OnTaskBarClose, id=5)
         self.Bind(wx.EVT_TASKBAR_LEFT_DOWN, self.OnLeftClick)
+
+    def statusDisconnected(self):
+        myimage = wx.Bitmap('static/images/peerapps_disconnected.png', wx.BITMAP_TYPE_PNG)
+        submyimage = myimage.GetSubBitmap(wx.Rect(0,0,16,16))
+        myicon = wx.EmptyIcon()
+        myicon.CopyFromBitmap(submyimage)
+        self.SetIcon(myicon, 'PeerApps')
+
+    def statusConnected(self):
+        myimage = wx.Bitmap('static/images/peerapps.png', wx.BITMAP_TYPE_PNG)
+        submyimage = myimage.GetSubBitmap(wx.Rect(0,0,16,16))
+        myicon = wx.EmptyIcon()
+        myicon.CopyFromBitmap(submyimage)
+        self.SetIcon(myicon, 'PeerApps')
 
     def OnTaskBarClose(self, event):
         self.RemoveIcon()
@@ -98,7 +120,7 @@ class MyTaskBarIcon(wx.TaskBarIcon):
 
 class MyApp(wx.App):
     def OnInit(self):
-        mainFrame(None, -1, 'PeerApps')
+        self.wxPeerApps = mainFrame(None, -1, 'PeerApps')
         return True
 
     def onCloseIt(self, event):
@@ -154,7 +176,11 @@ def scan_blockchain():
     local_db_session = local_db.get_session()
     rpc_raw = rpcRawProxy(helpers.get_rpc_url())
     while True:
-        latest_block, blocks_left = blockchain_func.scan_block(rpc_raw, local_db_session)
+        try:
+            latest_block, blocks_left = blockchain_func.scan_block(rpc_raw, local_db_session)
+            app.wxPeerApps.statusConnected()
+        except:
+            app.wxPeerApps.statusDisconnected()
         if latest_block:
             print "On the latest block, sleeping for 10 seconds"
             time.sleep(10)
