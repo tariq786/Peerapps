@@ -1,41 +1,7 @@
-function fix_transaction_index() {
-    jQuery.ajax({
-        type: "POST",
-        url: "/set_reindex/",
-        dataType: "json",
-        data: {
-            "value": "1"
-        },
-        success: function(data) {
-            update_config_visually(data.config);
-            confirm("Please leave this popup here, close your Peercoin Wallet, re-open your Peercoin Wallet, then dismiss this popup.\n\nFor as long as this popup remains on your screen, your Peercoin Wallet has its reindex flag set to 'on'. As soon as you dismiss this popup, that flag will be removed and set back to normal.")
-
-            jQuery.ajax({
-                type: "POST",
-                url: "/set_reindex/",
-                dataType: "json",
-                data: {
-                    "value": "0"
-                },
-                success: function(data) {
-                    update_config_visually(data.config);
-                },
-                error: function (e) {
-                    console.log("error", e);
-                }
-            });
-
-        },
-        error: function (e) {
-            console.log("error", e);
-        }
-    });
-}
-
 function config_automatic_setup() {
     jQuery.ajax({
         type: "POST",
-        url: "/config_automatic_setup/",
+        url: "/config_automatic_setup",
         dataType: "json",
         data: {},
         success: function(data) {

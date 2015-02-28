@@ -5,20 +5,7 @@ import random
 from bottle import static_file, request, Bottle
 moduleApp = Bottle()
 
-@moduleApp.route('/set_reindex/', method='POST')
-def set_reindex():
-    """
-        Used on setup page, toggle reindex to on/off in peercoin configuration.
-    """
-    forced_updates = {
-        "reindex": request.forms.get('value')
-    }
-    helpers.edit_config(forced_updates)
-
-    conf = helpers.get_service_status()
-    return json.dumps({"status":"success", "config":conf})
-
-@moduleApp.route('/config_automatic_setup/', method='POST')
+@moduleApp.route('/config_automatic_setup', method='POST')
 def config_automatic_setup():
     """
         Used on setup page, setup peercoin configuration for rpc_server.
