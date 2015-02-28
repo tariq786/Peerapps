@@ -2,7 +2,7 @@ import json
 import helpers
 import random
 
-from bottle import static_file, request, Bottle
+from bottle import static_file, Bottle
 moduleApp = Bottle()
 
 @moduleApp.route('/config_automatic_setup', method='POST')
