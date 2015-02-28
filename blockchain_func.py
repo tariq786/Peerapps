@@ -120,7 +120,7 @@ def parse_transaction(rpc_raw, local_db_session, tx_id, block_index, block_time)
 
 
 def submit_opreturn(rpc_connection, address, data):
-    from bitcoin.core import CTxIn, CMutableTxOut, MAX_MONEY, CScript, CMutableTransaction, COIN, b2x, b2lx
+    from bitcoin.core import CTxIn, CMutableTxOut, CScript, CMutableTransaction, COIN, CENT, b2x, b2lx
     from bitcoin.core.script import OP_CHECKSIG, OP_RETURN
 
     txouts = []
@@ -132,15 +132,10 @@ def submit_opreturn(rpc_connection, address, data):
     value_in = unspent[-1]['amount']
 
     change_pubkey = rpc_connection.validateaddress(address)['pubkey']
-    change_out = CMutableTxOut(MAX_MONEY, CScript([change_pubkey, OP_CHECKSIG]))
-
-    digest_outs = [CMutableTxOut(0.01*COIN, CScript([OP_RETURN, data]))]
-
+    change_out = CMutableTxOut(int(value_in - 2*CENT), CScript([change_pubkey, OP_CHECKSIG]))
+    digest_outs = [CMutableTxOut(CENT, CScript([OP_RETURN, data]))]
     txouts = [change_out] + digest_outs
-
     tx = CMutableTransaction(txins, txouts)
-
-    tx.vout[0].nValue = int(value_in - 0.02*COIN)
     
     print tx.serialize().encode('hex')
     r = rpc_connection.signrawtransaction(tx)
