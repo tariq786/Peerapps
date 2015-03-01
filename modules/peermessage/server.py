@@ -1,7 +1,7 @@
 import json
 import helpers, blockchain_func
 from bitcoin.rpc import Proxy as rpcProcessedProxy
-from bitcoinrpc.authproxy import AuthServiceProxy as rpcRawProxy
+from bitcoinrpc.authproxy import JSONRPCException, AuthServiceProxy as rpcRawProxy
 import local_db
 import external_db
 import time
@@ -129,7 +129,16 @@ def transmit_message():
     except IOError:
         return json.dumps({"status":"error", "msg":"No public key found for that address."})
 
-    enc_message += "|" + helpers.sign_string(rpc_raw, enc_message, from_address)
+    if request.forms.get('wallet_passphrase', False):
+        rpc_raw.walletpassphrase(request.forms.get('wallet_passphrase'), 60)
+    try:
+        enc_message += "|" + helpers.sign_string(rpc_raw, enc_message, from_address)
+    except JSONRPCException, e:
+        if "passphrase" in e.error['message']:
+            return json.dumps({"status":"error", "message":"Wallet locked.", "type":"wallet_locked"})
+        else:
+            return json.dumps({"status":"error", "message":"Error while trying to sign public key."})
+
     enc_message = helpers.format_outgoing(enc_message)
     opreturn_key = external_db.post_data(enc_message)
 
@@ -152,7 +161,16 @@ def publish_pk():
     except ValueError:
         return json.dumps({"status":"error", "message":"Must create GPG keys before publishing them!"})
     rpc_raw = rpcRawProxy(helpers.get_rpc_url())
-    pub_key += "|" + helpers.sign_string(rpc_raw, pub_key, address)
+    if request.forms.get('wallet_passphrase', False):
+        rpc_raw.walletpassphrase(request.forms.get('wallet_passphrase'), 60)
+    try:
+        pub_key += "|" + helpers.sign_string(rpc_raw, pub_key, address)
+    except JSONRPCException, e:
+        if "passphrase" in e.error['message']:
+            return json.dumps({"status":"error", "message":"Wallet locked.", "type":"wallet_locked"})
+        else:
+            return json.dumps({"status":"error", "message":"Error while trying to sign public key."})
+
     pub_key = helpers.format_outgoing(pub_key)
     opreturn_key = external_db.post_data(pub_key)
 
@@ -207,13 +225,13 @@ def get_addresses():
         Get all your addresses from your wallet.
     """
     rpc_raw = rpcRawProxy(helpers.get_rpc_url())
-    addresses = rpc_raw.listunspent(1)
+    addresses = rpc_raw.listunspent(0)
     return json.dumps({"status":"success", "data":addresses}, default=helpers.json_custom_parser)
 
-@moduleApp.route('/peermessage', method='GET')
+@moduleApp.route('/peermessage.html', method='GET')
 def peermessage():
-    return static_file("peermessage.html", root='./static/templates/')
+    return static_file("peermessage.html", root='./frontend/')
 
-@moduleApp.route('/spamlist', method='GET')
+@moduleApp.route('/spamlist.html', method='GET')
 def spamlist():
-    return static_file("spamlist.html", root='./static/templates/')
+    return static_file("spamlist.html", root='./frontend/')

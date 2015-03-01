@@ -32,7 +32,10 @@ def get_data(key):
         elif c == "isgd":
             data = isgd.get_data(key)
         elif c == "pastebin":
-            data = pastebin.get_data(key[-16:].decode("hex"))
+            try:
+                data = pastebin.get_data(key[-16:].decode("hex"))
+            except TypeError:
+                data = None #Can occur from someone making an invalid key
 
         if data:
             print "data", data

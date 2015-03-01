@@ -38,6 +38,8 @@
     <script src="static/js/bootstrap.min.js"></script>
     <script src="static/js/ICanHaz.min.js"></script>
     <script src="static/js/moment.js"></script>
+    <script src="static/js/jquery.mockjax.js"></script>
+    <script src="static/js/peerapps_mockjax.js"></script>
     <script src="static/js/peermessage.js"></script>
   </head>
 
@@ -57,9 +59,9 @@
         </div>
         <div class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
-            <li><a href="/setup">Setup</a></li>
-            <li class="active"><a href="/peermessage">PeerMessage</a></li>
-            <li><a href="/peerblog">PeerBlog</a></li>
+            <li><a href="setup.html">Setup</a></li>
+            <li class="active"><a href="peermessage.html">PeerMessage</a></li>
+            <li><a href="peerblog.html">PeerBlog</a></li>
           </ul>
         <span style="float:right;color:white;padding-top: 15px;padding-bottom: 15px;">
         Active Account: <select id="peercoin_address" onchange="address_updated()"></select>
@@ -117,7 +119,7 @@
           <div class="panel panel-success" id="dropbox_panel">
             <div class="panel-heading">
               <h3 class="panel-title">Your Messages
-                <span class="timeago">[<a href="/spamlist">Manage Spamlist</a>]</span>
+                <span class="timeago">[<a href="spamlist.html">Manage Spamlist</a>]</span>
               </h3>
             </div>
             <div class="panel-body" id="your_messages">
@@ -154,7 +156,7 @@
         [<a href="javascript:void(0)" onclick="mark_address_as_spammer('{{ address_from }}')">Spam</a>]
         </span><br />
         <br />
-        <pre>{{ msg }}</pre>
+        <pre style="white-space: pre-wrap;word-break: normal;">{{ msg }}</pre>
     </script>
   </body>
 </html>

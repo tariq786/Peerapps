@@ -1,6 +1,6 @@
 function unsubscribe(address) {
     jQuery("#"+address+"_unsubscribe").hide();
-    jQuery("#"+address+"_loading_unsubscribe").html('<img src="static/images/ajax-loader.gif">');
+    jQuery("#"+address+"_loading_unsubscribe").html('<img src="frontend/static/images/ajax-loader.gif">');
     jQuery.ajax({
         type: "POST",
         url: "/unsubscribe",
@@ -27,7 +27,7 @@ function unsubscribe(address) {
 
 function subscribe(address) {
     jQuery("#"+address+"_subscribe").hide();
-    jQuery("#"+address+"_loading_subscribe").html('<img src="static/images/ajax-loader.gif">');
+    jQuery("#"+address+"_loading_subscribe").html('<img src="frontend/static/images/ajax-loader.gif">');
     jQuery.ajax({
         type: "POST",
         url: "/subscribe",
@@ -54,7 +54,7 @@ function subscribe(address) {
 
 function view_latest(address) {
     jQuery("#"+address+"_view_latest").hide();
-    jQuery("#"+address+"_loading_latest").html('<img src="static/images/ajax-loader.gif">');
+    jQuery("#"+address+"_loading_latest").html('<img src="frontend/static/images/ajax-loader.gif">');
     jQuery.ajax({
         type: "POST",
         url: "/view_latest_post",
@@ -90,29 +90,40 @@ function address_updated() {
 function update_balance_info() {
     var v = address_to_balance[$('#peercoin_address').val()];
     $('#ppc_balance').html(v+" ppc");
-    var message_balance = parseInt(parseFloat(v) / 0.01); 
+    var message_balance = parseInt(parseFloat(v) / 0.02);
     $("#messages_balance").html("~"+message_balance+" blog posts");
 }
 
-function submit_new_blogpost() {
+function submit_new_blogpost(wallet_passphrase) {
 
-    jQuery("#submit_blogpost_loading").html('<img src="static/images/ajax-loader.gif">');
+    jQuery("#submit_blogpost_loading").html('<img src="frontend/static/images/ajax-loader.gif">');
     jQuery("#submit_blogpost_button").hide();
+
+    var post_data = {
+        "message": $('#new_message').val(),
+        "from_address": $('#peercoin_address').val(),
+        "to_address": $('#new_message_address').val()
+    };
+    if (wallet_passphrase) {
+        post_data['wallet_passphrase'] = wallet_passphrase;
+    }
 
     jQuery.ajax({
         type: "POST",
         url: "/submit_blogpost",
         dataType: "json",
-        data: {
-            "message": $('#new_message').val(),
-            "from_address": $('#peercoin_address').val(),
-            "to_address": $('#new_message_address').val()
-        },
+        data: post_data,
         success: function(data) {
             if (data.status == "error") {
-                alert(data.msg);
-                jQuery("#submit_blogpost_loading").html('');
-                jQuery("#submit_blogpost_button").show();
+                if ("type" in data && data.type == "wallet_locked") {
+                    var wallet_passphrase = window.prompt("Submitting a blog post on the blockchain will cost 0.02 PPC.\n\nTo proceed, please enter your wallet passphrase:");
+                    submit_new_blogpost(wallet_passphrase);
+                }
+                else {
+                    alert(data.msg);
+                    jQuery("#submit_blogpost_loading").html('');
+                    jQuery("#submit_blogpost_button").show();
+                }
             }
             else {
                 jQuery("#submit_blogpost_loading").html('');

@@ -1,7 +1,7 @@
 import json
 import helpers, blockchain_func
 from bitcoin.rpc import Proxy as rpcProcessedProxy
-from bitcoinrpc.authproxy import AuthServiceProxy as rpcRawProxy
+from bitcoinrpc.authproxy import JSONRPCException, AuthServiceProxy as rpcRawProxy
 import local_db, external_db
 
 from bottle import static_file, request, Bottle
@@ -138,7 +138,16 @@ def submit_blogpost():
     message = request.forms.get('message')
     rpc_raw = rpcRawProxy(helpers.get_rpc_url())
 
-    message += "|" + helpers.sign_string(rpc_raw, message, from_address)
+    if request.forms.get('wallet_passphrase', False):
+        rpc_raw.walletpassphrase(request.forms.get('wallet_passphrase'), 60)
+    try:
+        message += "|" + helpers.sign_string(rpc_raw, message, from_address)
+    except JSONRPCException, e:
+        if "passphrase" in e.error['message']:
+            return json.dumps({"status":"error", "message":"Wallet locked.", "type":"wallet_locked"})
+        else:
+            return json.dumps({"status":"error", "message":"Error while trying to sign public key."})
+
     message = helpers.format_outgoing(message)
     opreturn_key = external_db.post_data(message)
 
@@ -150,6 +159,6 @@ def submit_blogpost():
     blockchain_func.submit_opreturn(rpc_processed, from_address, op_return_data)
     return json.dumps({"status":"success"})
 
-@moduleApp.route('/peerblog', method='GET')
+@moduleApp.route('/peerblog.html', method='GET')
 def peerblog():
-    return static_file("peerblog.html", root='./static/templates/')
+    return static_file("peerblog.html", root='./frontend/')

@@ -31,7 +31,7 @@ def download_blg(rpc_raw, key, from_address):
 
 def download_blgs(rpc_raw, local_db_session):
     db_blogs = local_db_session.query(local_db.Broadcast).filter(local_db.Broadcast.msg == "").order_by(local_db.Broadcast.time.desc())
-    my_addresses = [x['address'] for x in rpc_raw.listunspent(1)]
+    my_addresses = [x['address'] for x in rpc_raw.listunspent(0)]
     for b in db_blogs:
         if b.address_from in my_addresses or local_db_session.query(local_db.Subscription).filter(local_db.Subscription.address == b.address_from).first():
 
@@ -51,13 +51,6 @@ def get_service_status():
     conf = get_config()
     if 'rpcpassword' in conf and conf['rpcpassword']:
         conf['rpcpassword'] = "*******"
-    try:
-        rpc_raw = AuthServiceProxy(get_rpc_url())
-        #TODO update this to a valid peercoin op_return transaction
-        rpc_raw.decoderawtransaction(rpc_raw.getrawtransaction("576e6802bc6787183a329c3ebc8c7189957ab993b9cffbacb8b121f34c40c1d0"))
-        conf['index_status'] = "good"
-    except:
-        conf['index_status'] = "bad"
 
     try:
         rpc_raw = AuthServiceProxy(get_rpc_url())
@@ -136,7 +129,7 @@ def get_config():
             k, v = line.split('=', 1)
             conf[k.strip()] = v.strip()
 
-        service_port = 9902
+        service_port = 9904
         conf['rpcport'] = int(conf.get('rpcport', service_port))
         conf['rpcssl'] = conf.get('rpcssl', '0')
 

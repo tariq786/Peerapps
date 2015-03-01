@@ -23,8 +23,9 @@ from .script import CScript
 from .serialize import *
 
 # Core definitions
-COIN = 100000000
-MAX_MONEY = 21000000 * COIN
+COIN = 1000000
+CENT = 10000
+MAX_MONEY = 2000000000 * COIN
 MAX_BLOCK_SIZE = 1000000
 MAX_BLOCK_SIGOPS = MAX_BLOCK_SIZE/50
 

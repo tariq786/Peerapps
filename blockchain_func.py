@@ -21,7 +21,7 @@ from modules.peermessage.opreturn_scanner import parse as peermessage_modulepars
 def get_blockchain_scan_status(rpc_raw, local_db_session):
     bkscan = local_db_session.query(local_db.BlockchainScan).first() #Attempt to pick up where we left off.
     if not bkscan: #First scan!
-        bkscan = local_db.BlockchainScan(last_index=160000)
+        bkscan = local_db.BlockchainScan(last_index=135000)
         local_db_session.add(bkscan)
         local_db_session.commit()
     current_index = bkscan.last_index
@@ -33,7 +33,7 @@ def get_blockchain_scan_status(rpc_raw, local_db_session):
 def scan_block(rpc_raw, local_db_session):
     bkscan = local_db_session.query(local_db.BlockchainScan).first() #Attempt to pick up where we left off.
     if not bkscan: #First scan!
-        bkscan = local_db.BlockchainScan(last_index=160000)
+        bkscan = local_db.BlockchainScan(last_index=135000)
         local_db_session.add(bkscan)
         local_db_session.commit()
     current_index = bkscan.last_index
@@ -120,27 +120,22 @@ def parse_transaction(rpc_raw, local_db_session, tx_id, block_index, block_time)
 
 
 def submit_opreturn(rpc_connection, address, data):
-    from bitcoin.core import CTxIn, CMutableTxOut, MAX_MONEY, CScript, CMutableTransaction, COIN, b2x, b2lx
+    from bitcoin.core import CTxIn, CMutableTxOut, CScript, CMutableTransaction, COIN, CENT, b2x, b2lx
     from bitcoin.core.script import OP_CHECKSIG, OP_RETURN
 
     txouts = []
 
-    unspent = sorted([y for y in rpc_connection.listunspent(1) if str(y['address']) == address], key=lambda x: hash(x['amount']))
+    unspent = sorted([y for y in rpc_connection.listunspent(0) if str(y['address']) == address], key=lambda x: hash(x['amount']))
 
     txins = [CTxIn(unspent[-1]['outpoint'])]
 
     value_in = unspent[-1]['amount']
 
     change_pubkey = rpc_connection.validateaddress(address)['pubkey']
-    change_out = CMutableTxOut(MAX_MONEY, CScript([change_pubkey, OP_CHECKSIG]))
-
-    digest_outs = [CMutableTxOut(0.01*COIN, CScript([OP_RETURN, data]))]
-
+    change_out = CMutableTxOut(int(value_in - 2*CENT), CScript([change_pubkey, OP_CHECKSIG]))
+    digest_outs = [CMutableTxOut(CENT, CScript([OP_RETURN, data]))]
     txouts = [change_out] + digest_outs
-
     tx = CMutableTransaction(txins, txouts)
-
-    tx.vout[0].nValue = int(value_in - 0.02*COIN)
     
     print tx.serialize().encode('hex')
     r = rpc_connection.signrawtransaction(tx)
