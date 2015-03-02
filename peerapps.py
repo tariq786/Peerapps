@@ -159,6 +159,8 @@ def start_webserver():
     rootApp.merge(peermessage_moduleApp)
     from modules.setup.server import moduleApp as setup_moduleApp
     rootApp.merge(setup_moduleApp)
+    from modules.minting.server import moduleApp as minting_moduleApp
+    rootApp.merge(minting_moduleApp)
 
     #Dynamic Load
     #for name in os.listdir("./modules/"):
