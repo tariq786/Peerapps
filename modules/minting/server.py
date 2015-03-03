@@ -14,13 +14,13 @@ def peercoin_minting_data():
     for a in rpc_raw.listunspent(0):
         tx_info = rpc_raw.decoderawtransaction(rpc_raw.getrawtransaction(a['txid']))
         age = int(time.time()) - tx_info['time']
-        age = int(((age / 60) / 60) / 24)
+        age = int(((age / 60) / 60) / 24) #convert to days
         if age < 30:
             coindays = 0
-        elif age > 90:
-            coindays = int(90 * a['amount'])
+        elif age < 120:
+            coindays = int((age-30) * a['amount'])
         else:
-            coindays = int(age * a['amount'])
+            coindays = int(90 * a['amount'])
         minting_data.append([
             a['txid'],
             a['address'],

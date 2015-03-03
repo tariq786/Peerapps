@@ -64,6 +64,13 @@
       <!-- Main jumbotron for a primary marketing message or call to action -->
       <div class="jumbotron">
         <h2>Peercoin Minting</h2>
+        <span style="float:right;padding-bottom:10px;">Display Minting Probability Within:
+        <select onchange="display_data()" id="time_range">
+            <option value="10min">10 min</option>
+            <option value="24hours">24 hours</option>
+            <option value="30days">30 days</option>
+            <option value="90days">90 days</option>
+        </select></span>
         <div class="row">
           <table id="pminting_table" class="order-column" cellspacing="0" width="100%">
               <thead>
