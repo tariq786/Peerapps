@@ -29,20 +29,19 @@ def download_blg(rpc_raw, key, from_address):
     return verified_message
 
 
-def download_blgs(rpc_raw, local_db_session):
-    db_blogs = local_db_session.query(local_db.Broadcast).filter(local_db.Broadcast.msg == "").order_by(local_db.Broadcast.time.desc())
+def download_blgs(rpc_raw):
+    from peerblog.models import Subscription, Blog
+    db_blogs = Blog.objects.filter(msg="").order_by('-time')
     my_addresses = [x['address'] for x in rpc_raw.listunspent(0)]
     for b in db_blogs:
-        if b.address_from in my_addresses or local_db_session.query(local_db.Subscription).filter(local_db.Subscription.address == b.address_from).first():
-
+        if b.address_from in my_addresses or Subscription.objects.filter(address=b.address_from).exists():
             blog_post = download_blg(rpc_raw, b.key, b.address_from)
             if blog_post is None:
                 #delete it or something.
                 pass
 
-            print "Saved new broadcast message", blog_post
-            local_db_session.query(local_db.Broadcast).filter(local_db.Broadcast.key == b.key).update({"msg": blog_post})
-            local_db_session.commit()
+            print "Saved new blog message", blog_post
+            Blog.objects.filter(key=b.key).update(msg=blog_post)
 
 def get_service_status():
     """
