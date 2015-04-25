@@ -1,9 +1,7 @@
 import json
 import helpers, blockchain_func
 from bitcoinrpc.authproxy import AuthServiceProxy as rpcRawProxy
-import local_db
 import webbrowser
-import os
 import wx
 import thread
 import time
@@ -133,9 +131,8 @@ def start_webserver():
 
     @rootApp.route('/blockchain_scan_status', method='POST')
     def blockchain_scan_status():
-        local_db_session = local_db.get_session()
         rpc_raw = rpcRawProxy(helpers.get_rpc_url())
-        latest_block, blocks_left = blockchain_func.get_blockchain_scan_status(rpc_raw, local_db_session)
+        latest_block, blocks_left = blockchain_func.get_blockchain_scan_status(rpc_raw)
         return json.dumps({
             "status":"success",
             "latest_block": latest_block,
@@ -175,11 +172,10 @@ def scan_blockchain():
     """
         Scan one block in the blockchain (and mempool as well)
     """
-    local_db_session = local_db.get_session()
     rpc_raw = rpcRawProxy(helpers.get_rpc_url())
     while True:
         try:
-            latest_block, blocks_left = blockchain_func.scan_block(rpc_raw, local_db_session)
+            latest_block, blocks_left = blockchain_func.scan_block(rpc_raw)
             app.wxPeerApps.statusConnected()
         except:
             app.wxPeerApps.statusDisconnected()
@@ -188,6 +184,5 @@ def scan_blockchain():
             time.sleep(10)
 
 
-local_db.setup()
 app = MyApp(0)
 app.MainLoop()

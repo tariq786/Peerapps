@@ -72,7 +72,7 @@ def get_blogs(request):
     for m in my_blogs:
         results['mine'].append({
             "address_from": m.address_from,
-            "blockindex": m.blockindex,
+            "block_index": m.block_index,
             "tx_id": m.tx_id,
             "msg": m.msg,
             "key": m.key,
@@ -85,7 +85,7 @@ def get_blogs(request):
     for m in sub_blogs:
         results['sub'].append({
             "address_from": m.address_from,
-            "blockindex": m.blockindex,
+            "block_index": m.block_index,
             "tx_id": m.tx_id,
             "msg": m.msg,
             "key": m.key,

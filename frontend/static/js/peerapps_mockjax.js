@@ -17,7 +17,7 @@ if (enable_mockjax) {
                     "sub":[
                         {
                             "address_from":"mpTAKHnTGjMwLN5rYVb21vGCnNF96ZJaNB",
-                            "blockindex":136712,
+                            "block_index":136712,
                             "tx_id":"dc81240c1cf783d2ea6942da930f14ea2b2655b1b625c4a7eec9959f77fd0d4a",
                             "key":"9595a041e6a39747571697664",
                             "time":1425150881,
@@ -27,7 +27,7 @@ if (enable_mockjax) {
                     "mine":[
                         {
                             "address_from":"mpTAKHnTGjMwLN5rYVb21vGCnNF96ZJaNB",
-                            "blockindex":136712,
+                            "block_index":136712,
                             "tx_id":"dc81240c1cf783d2ea6942da930f14ea2b2655b1b625c4a7eec9959f77fd0d4a",
                             "key":"9595a041e6a39747571697664",
                             "time":1425150881,
@@ -215,7 +215,7 @@ if (enable_mockjax) {
                 "data":[
                     {
                         "address_from":"mrHoasNQETW3mihPA3iC4vw7CzL3qyL4dn",
-                        "blockindex":135545,
+                        "block_index":135545,
                         "address_to":"mpTAKHnTGjMwLN5rYVb21vGCnNF96ZJaNB",
                         "tx_id":"916ed531a94828f6e63f30c127f1263a6fbd6552c5c09234b26c8de3e36c363c",
                         "key":"fac8ef0f962707a6737647774",
@@ -224,7 +224,7 @@ if (enable_mockjax) {
                     },
                     {
                         "address_from":"mhZLveeLmk3uXyX2pFYBgA9VrVcrTu9zDS",
-                        "blockindex":136713,
+                        "block_index":136713,
                         "address_to":"mpTAKHnTGjMwLN5rYVb21vGCnNF96ZJaNB",
                         "tx_id":"777edb417c4bc54c6fbe32f993943acbd50ba72d74f605057c0c507a7a4e7a19",
                         "key":"f4aa986bd3924fd0e4c4e8399",

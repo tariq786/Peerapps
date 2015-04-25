@@ -14,4 +14,5 @@ urlpatterns = patterns('',
     url(r'^get_addresses/$', "peermessage.views.get_addresses"),
     url(r'^peermessage/$', "peermessage.views.peermessage"),
     url(r'^spamlist/$', "peermessage.views.spamlist"),
+    url(r'^$', "peermessage.views.peermessage"),
 )

@@ -1,41 +1,31 @@
-import local_db
 from bitcoinrpc.authproxy import JSONRPCException
 
-from sqlalchemy.sql import update
 import json
 import time
-import os
 
 
 #Static load
-from modules.peerblog.opreturn_scanner import parse as peerblog_moduleparse
-from modules.peermessage.opreturn_scanner import parse as peermessage_moduleparse
+from peerblog.opreturn_scanner import parse as peerblog_moduleparse
+from peermessage.opreturn_scanner import parse as peermessage_moduleparse
 
-#Dynamic Load
-#blockchain_module_scanners = []
-#for name in os.listdir("./modules/"):
-#    if os.path.isfile("./modules/"+name+"/opreturn_scanner.py"):
-#        exec "from modules."+name+".opreturn_scanner import parse as "+name+"_moduleparse"
-#        blockchain_module_scanners.append(name+"_moduleparse")
+from setup.models import BlockchainScan, MemPoolScan
 
-def get_blockchain_scan_status(rpc_raw, local_db_session):
-    bkscan = local_db_session.query(local_db.BlockchainScan).first() #Attempt to pick up where we left off.
+def get_blockchain_scan_status(rpc_raw):
+    bkscan = BlockchainScan.objects.all().first() #Attempt to pick up where we left off.
     if not bkscan: #First scan!
-        bkscan = local_db.BlockchainScan(last_index=160000)
-        local_db_session.add(bkscan)
-        local_db_session.commit()
+        bkscan = BlockchainScan(last_index=160000)
+        bkscan.save()
     current_index = bkscan.last_index
     blockcount = rpc_raw.getblockcount()
     on_latest_block = True if current_index >= blockcount else False
     return on_latest_block, blockcount - current_index
 
 
-def scan_block(rpc_raw, local_db_session):
-    bkscan = local_db_session.query(local_db.BlockchainScan).first() #Attempt to pick up where we left off.
+def scan_block(rpc_raw):
+    bkscan = BlockchainScan.objects.all().first() #Attempt to pick up where we left off.
     if not bkscan: #First scan!
-        bkscan = local_db.BlockchainScan(last_index=160000)
-        local_db_session.add(bkscan)
-        local_db_session.commit()
+        bkscan = BlockchainScan(last_index=160000)
+        bkscan.save()
     current_index = bkscan.last_index
     blockcount = rpc_raw.getblockcount()
     on_latest_block = True if current_index >= blockcount else False
@@ -43,11 +33,10 @@ def scan_block(rpc_raw, local_db_session):
     processed_transactions = {}
     if on_latest_block:
         #If we are on the latest block, we'll be scanning the mempool later
-        mpscan = local_db_session.query(local_db.MemPoolScan).first()
+        mpscan = MemPoolScan.objects.all().first()
         if not mpscan:
-            mpscan = local_db.MemPoolScan(txids_scanned=json.dumps({}))
-            local_db_session.add(mpscan)
-            local_db_session.commit()
+            mpscan = MemPoolScan(txids_scanned=json.dumps({}))
+            mpscan.save()
 
         #get tx_ids we already scanned in mempool.
         processed_transactions = json.loads(mpscan.txids_scanned)
@@ -59,19 +48,15 @@ def scan_block(rpc_raw, local_db_session):
         for tx_id in bi['tx']:
             if tx_id not in processed_transactions: #only process transactions once
                 block_time = bi['time'] if 'time' in bi else int(time.time())
-                parse_transaction(rpc_raw, local_db_session, tx_id, current_index, block_time)
+                parse_transaction(rpc_raw, tx_id, current_index, block_time)
 
         current_index += 1
-        u = update(local_db.BlockchainScan).values({"last_index": current_index})
-        local_db_session.execute(u)
-        local_db_session.commit()
+        BlockchainScan.objects.all().update(last_index=current_index)
 
         if on_latest_block:
             print "wiping mempool"
             #wipe mempool scan (assume mempool transactions were added to this block)
-            u = update(local_db.MemPoolScan).values({"txids_scanned": "{}"})
-            local_db_session.execute(u)
-            local_db_session.commit()
+            MemPoolScan.objects.all().update(txids_scanned="{}")
             processed_transactions = {}
 
     except JSONRPCException:
@@ -84,19 +69,17 @@ def scan_block(rpc_raw, local_db_session):
         count_new = 0
         for tx_id in unconfirmed_transactions:
             if tx_id not in processed_transactions:
-                parse_transaction(rpc_raw, local_db_session, tx_id, current_index, int(time.time()))
+                parse_transaction(rpc_raw, tx_id, current_index, int(time.time()))
                 processed_transactions[tx_id] = 1
                 count_new += 1
         print "(found", count_new, "transactions)"
 
-        u = update(local_db.MemPoolScan).values({"txids_scanned": json.dumps(processed_transactions)})
-        local_db_session.execute(u)
-        local_db_session.commit()
+        MemPoolScan.objects.all().update(txids_scanned=json.dumps(processed_transactions))
 
         return True, blockcount - current_index
     return False, blockcount - current_index
 
-def parse_transaction(rpc_raw, local_db_session, tx_id, block_index, block_time):
+def parse_transaction(rpc_raw, tx_id, block_index, block_time):
     tx_info = rpc_raw.decoderawtransaction(rpc_raw.getrawtransaction(tx_id))
     for vout in tx_info['vout']:
         if vout['scriptPubKey']['asm'].startswith("OP_RETURN"):
@@ -113,10 +96,8 @@ def parse_transaction(rpc_raw, local_db_session, tx_id, block_index, block_time)
                     addresses.append(input_raw_tx['vout'][inp['vout']]['scriptPubKey']['addresses'][0])
                 from_user_address = addresses[0]
 
-                peerblog_moduleparse(rpc_raw, local_db_session, op_return_data, from_user_address, block_index, tx_id, block_time)
-                peermessage_moduleparse(rpc_raw, local_db_session, op_return_data, from_user_address, block_index, tx_id, block_time)
-                #for b in blockchain_module_scanners:
-                #    globals()[b](rpc_raw, local_db_session, op_return_data, from_user_address, block_index, tx_id, block_time)
+                peerblog_moduleparse(rpc_raw, op_return_data, from_user_address, block_index, tx_id, block_time)
+                peermessage_moduleparse(rpc_raw, op_return_data, from_user_address, block_index, tx_id, block_time)
 
 
 def submit_opreturn(rpc_connection, address, data):

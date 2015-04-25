@@ -96,7 +96,7 @@ def get_messages(request):
         messages.append({
             "address_from": m.address_from,
             "address_to": m.address_to,
-            "blockindex": m.blockindex,
+            "block_index": m.block_index,
             "tx_id": m.tx_id,
             "msg": m.msg,
             "key": m.key,
