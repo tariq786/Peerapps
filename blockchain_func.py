@@ -13,7 +13,7 @@ from setup.models import BlockchainScan, MemPoolScan
 def get_blockchain_scan_status(rpc_raw):
     bkscan = BlockchainScan.objects.all().first() #Attempt to pick up where we left off.
     if not bkscan: #First scan!
-        bkscan = BlockchainScan(last_index=160000)
+        bkscan = BlockchainScan(last_index=145000)
         bkscan.save()
     current_index = bkscan.last_index
     blockcount = rpc_raw.getblockcount()
@@ -24,7 +24,7 @@ def get_blockchain_scan_status(rpc_raw):
 def scan_block(rpc_raw):
     bkscan = BlockchainScan.objects.all().first() #Attempt to pick up where we left off.
     if not bkscan: #First scan!
-        bkscan = BlockchainScan(last_index=160000)
+        bkscan = BlockchainScan(last_index=145000)
         bkscan.save()
     current_index = bkscan.last_index
     blockcount = rpc_raw.getblockcount()

@@ -89,6 +89,7 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, "frontend/static/"),
 )
 
+STATIC_ROOT = os.path.join(BASE_DIR, "frontend/static/")
 STATIC_URL = '/static/'
 
 SETTINGS_PATH = os.path.dirname(os.path.dirname(__file__))

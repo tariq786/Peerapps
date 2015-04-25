@@ -39,7 +39,7 @@ class mainFrame(wx.Frame):
         self.tskic.statusDisconnected()
 
     def statusConnected(self):
-        icon1 = wx.Icon("frontend/static/images/peerapps_disconnected.png", wx.BITMAP_TYPE_PNG)
+        icon1 = wx.Icon("frontend/static/images/peerapps.png", wx.BITMAP_TYPE_PNG)
         self.SetIcon(icon1)
         self.tskic.statusConnected()
 
@@ -108,13 +108,13 @@ class MyTaskBarIcon(wx.TaskBarIcon):
         return tbmenu
 
     def GoToSetup(self, event):
-        webbrowser.open("http://127.0.0.1:8011/")
+        webbrowser.open("http://127.0.0.1:8011/setup.html")
 
     def GoToPeerMessage(self, event):
-        webbrowser.open("http://127.0.0.1:8011/peermessage/")
+        webbrowser.open("http://127.0.0.1:8011/peermessage.html")
 
     def GoToPeerBlog(self, event):
-        webbrowser.open("http://127.0.0.1:8011/peerblog/")
+        webbrowser.open("http://127.0.0.1:8011/peerblog.html")
 
     def GoToPeercoinTalk(self, event):
         webbrowser.open("http://www.peercointalk.org/")
@@ -135,11 +135,9 @@ def start_webserver():
     server = wsgiserver.CherryPyWSGIServer(
         ('127.0.0.1', 8011),
         django.core.handlers.wsgi.WSGIHandler(),
-        server_name='www.django.peerapps',
         numthreads = 5,
     )
 
-    webbrowser.open("http://127.0.0.1:8011/")
     try:
         server.start()
     except KeyboardInterrupt:

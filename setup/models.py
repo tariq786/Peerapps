@@ -15,7 +15,7 @@ class MemPoolScan(models.Model):
     txids_scanned = models.TextField(blank=True, null=True)
 
     def __unicode__(self):
-        return u'%s' % (self.last_index)
+        return u'%s' % (self.id)
 
     class Meta:
         verbose_name = 'MemPoolScan'
