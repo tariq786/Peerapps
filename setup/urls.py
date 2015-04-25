@@ -5,5 +5,4 @@ urlpatterns = patterns('',
     url(r'^check_peercoin_conf/$', "setup.views.check_peercoin_conf"),
     url(r'^blockchain_scan_status/$', "setup.views.blockchain_scan_status"),
     url(r'^get_addresses/$', "setup.views.get_addresses"),
-    url(r'^$', "setup.views.setup"),
 )

@@ -6,13 +6,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="">
     <meta name="author" content="">
-    <link rel="shortcut icon" href="/static/images/peerapps.png">
+    <link rel="shortcut icon" href="static/images/peerapps.png">
 
     <title>PeerMessage</title>
 
-    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
-    <link href="/static/css/bootstrap-theme.min.css" rel="stylesheet">
-    <link href="/static/css/jquery-ui-smoothness.css" rel="stylesheet">
+    <link href="static/css/bootstrap.min.css" rel="stylesheet">
+    <link href="static/css/bootstrap-theme.min.css" rel="stylesheet">
+    <link href="static/css/jquery-ui-smoothness.css" rel="stylesheet">
     <style>
         .address_from {
             font-size: 10px;
@@ -27,20 +27,20 @@
     </style>
 
     <!-- Custom styles for this template -->
-    <link href="/static/css/theme.css" rel="stylesheet">
-    <script src="/static/js/jquery.min.js"></script>
-    <script src="/static/js/jquery-ui.js"></script>
+    <link href="static/css/theme.css" rel="stylesheet">
+    <script src="static/js/jquery.min.js"></script>
+    <script src="static/js/jquery-ui.js"></script>
     <script>
         //avoid tooltip namespace collisions between bootstrap and jquery ui by renaming jquery ui
         $.widget.bridge('uibutton', $.ui.button);
         $.widget.bridge('uitooltip', $.ui.tooltip);
     </script>
-    <script src="/static/js/bootstrap.min.js"></script>
-    <script src="/static/js/ICanHaz.min.js"></script>
-    <script src="/static/js/moment.js"></script>
-    <script src="/static/js/jquery.mockjax.js"></script>
-    <script src="/static/js/peerapps_mockjax.js"></script>
-    <script src="/static/js/peermessage.js"></script>
+    <script src="static/js/bootstrap.min.js"></script>
+    <script src="static/js/ICanHaz.min.js"></script>
+    <script src="static/js/moment.js"></script>
+    <script src="static/js/jquery.mockjax.js"></script>
+    <script src="static/js/peerapps_mockjax.js"></script>
+    <script src="static/js/peermessage.js"></script>
   </head>
 
   <body role="document">
@@ -59,10 +59,10 @@
         </div>
         <div class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
-            <li><a href="/">Setup</a></li>
-            <li class="active"><a href="/peermessage/">PeerMessage</a></li>
-            <li><a href="/peerblog/">PeerBlog</a></li>
-            <li><a href="/peercoin_minting/">Peercoin Minting</a></li>
+            <li><a href="setup.html">Setup</a></li>
+            <li class="active"><a href="peermessage.html">PeerMessage</a></li>
+            <li><a href="peerblog.html">PeerBlog</a></li>
+            <li><a href="peercoin_minting.html">Peercoin Minting</a></li>
           </ul>
         <span style="float:right;color:white;padding-top: 15px;padding-bottom: 15px;">
         Active Account: <select id="peercoin_address" onchange="address_updated()"></select>
@@ -83,14 +83,14 @@
             </div>
             <div class="panel-body">
                 <span style="font-weight:bold">Balance:</span><br>
-                <span id="ppc_balance"><img src="/static/images/ajax-loader.gif"></span>
+                <span id="ppc_balance"><img src="static/images/ajax-loader.gif"></span>
                 <span style="color:#a8a8a8" id="messages_balance"></span>
                 <br /><br />
 
                 <span class="glyphicon glyphicon-question-sign" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="" data-original-title="You must create GPG keys to be able to allow others to encrypt messages sent to you."></span>
                 <span style="font-weight:bold"> GPG keys created:</span><br />
                 <span style="">
-                    <span id="local_gpg_status_loading"><img src="/static/images/ajax-loader.gif"></span>
+                    <span id="local_gpg_status_loading"><img src="static/images/ajax-loader.gif"></span>
                     <span id="local_gpg_status_incomplete" style="color:red;font-weight:bold;display:none;">
                         Not Complete
                         <button type="button" class="btn btn-sm btn-success" onclick="setup_gpg()">Setup</button>
@@ -103,7 +103,7 @@
                 <span class="glyphicon glyphicon-question-sign" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="" data-original-title="Users will only be able to send you messages after you publish your public key. You can still send messages yourself without publishing."></span>
                 <span style="font-weight:bold"> Public Key Published:</span><br />
                 <span style="">
-                    <span id="public_key_status_loading"><img src="/static/images/ajax-loader.gif"></span>
+                    <span id="public_key_status_loading"><img src="static/images/ajax-loader.gif"></span>
                     <span id="public_key_status_incomplete" style="color:red;font-weight:bold;display:none;">
                         Not Complete
                         <button type="button" class="btn btn-sm btn-success" onclick="publish_pk()">Publish</button>
@@ -112,7 +112,7 @@
                         Complete
                     </span>
                 </span><br /><br />
-                <span style="font-size:13px;font-weight:bold">Blockchain Status: <br><span id="blockchain_status"><img src="/static/images/ajax-loader.gif"></span></span><br><br>
+                <span style="font-size:13px;font-weight:bold">Blockchain Status: <br><span id="blockchain_status"><img src="static/images/ajax-loader.gif"></span></span><br><br>
             </div>
           </div>
         </div><!-- /.col-sm-4 -->

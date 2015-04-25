@@ -1,8 +1,32 @@
-var enable_mockjax = false; //set to false to disable mockjax and use the real server
+var enable_mockjax = true; //set to false to disable mockjax and use the real server
 if (enable_mockjax) {
 
     $.mockjax({
-        url: "/get_blogs/",
+        url: "/peercoin_minting/peercoin_minting_data/",
+        response: function() {
+            this.responseText = {
+                "status":"success",
+                "difficulty":"22.97675476",
+                "data":[
+                    [
+                        "77ecfeff8e511643a92a2daaf5fdee8c2c9b91c6d73f13f3c49baeb96267041a",
+                        "muySq5xnHXeftnU8iE9F4NG39eRaGfqmKq",
+                        56,
+                        "44000.00000000",
+                        1144000,
+                        ""
+                    ]
+                ]
+            }
+            if (Math.floor(Math.random() * 50) == 3) {
+                //one in 50 generates server error
+                this.status = 500;
+            }
+        },
+    });
+
+    $.mockjax({
+        url: "/peerblog/get_blogs/",
         response: function() {
             this.responseText = {
                 "status":"success",
@@ -44,7 +68,7 @@ if (enable_mockjax) {
     });
 
     $.mockjax({
-        url: "/scan_blogs/",
+        url: "/peerblog/scan_blogs/",
         response: function() {
             this.responseText = {
                 "status": "success"
@@ -57,7 +81,7 @@ if (enable_mockjax) {
     });
 
     $.mockjax({
-        url: "/submit_blogpost/",
+        url: "/peerblog/submit_blogpost/",
         response: function() {
             this.responseText = {
                 "status": "success"
@@ -70,7 +94,7 @@ if (enable_mockjax) {
     });
 
     $.mockjax({
-        url: "/view_latest_post/",
+        url: "/peerblog/view_latest_post/",
         response: function() {
             this.responseText = {
                 "status":"success",
@@ -84,7 +108,7 @@ if (enable_mockjax) {
     });
 
     $.mockjax({
-        url: "/subscribe/",
+        url: "/peerblog/subscribe/",
         response: function() {
             this.responseText = {
                 "status": "success"
@@ -97,7 +121,7 @@ if (enable_mockjax) {
     });
 
     $.mockjax({
-        url: "/unsubscribe/",
+        url: "/peerblog/unsubscribe/",
         response: function() {
             this.responseText = {
                 "status": "success"
@@ -110,7 +134,7 @@ if (enable_mockjax) {
     });
 
     $.mockjax({
-        url: "/get_spamlist/",
+        url: "/peermessage/get_spamlist/",
         response: function() {
             this.responseText = {
                 "status":"success",
@@ -130,7 +154,7 @@ if (enable_mockjax) {
 
 
     $.mockjax({
-        url: "/mark_address_as_spam/",
+        url: "/peermessage/mark_address_as_spam/",
         response: function() {
             this.responseText = {
                 "status": "success"
@@ -143,10 +167,166 @@ if (enable_mockjax) {
     });
 
     $.mockjax({
-        url: "/remove_from_spamlist/",
+        url: "/peermessage/remove_from_spamlist/",
         response: function() {
             this.responseText = {
                 "status": "success"
+            }
+            if (Math.floor(Math.random() * 50) == 3) {
+                //one in 50 generates server error
+                this.status = 500;
+            }
+        },
+    });
+
+    $.mockjax({
+        url: "/peermessage/get_messages/",
+        response: function() {
+            var on_latest_block = Math.round(Math.random()) ? true : false;
+            this.responseText = {
+                "status":"success",
+                "data":[
+                    {
+                        "address_from":"mrHoasNQETW3mihPA3iC4vw7CzL3qyL4dn",
+                        "block_index":135545,
+                        "address_to":"mpTAKHnTGjMwLN5rYVb21vGCnNF96ZJaNB",
+                        "tx_id":"916ed531a94828f6e63f30c127f1263a6fbd6552c5c09234b26c8de3e36c363c",
+                        "key":"fac8ef0f962707a6737647774",
+                        "time":1424693971,
+                        "msg":"Welcome to the Peercoin Community! \n\nHave fun,\nSK"
+                    },
+                    {
+                        "address_from":"mhZLveeLmk3uXyX2pFYBgA9VrVcrTu9zDS",
+                        "block_index":136713,
+                        "address_to":"mpTAKHnTGjMwLN5rYVb21vGCnNF96ZJaNB",
+                        "tx_id":"777edb417c4bc54c6fbe32f993943acbd50ba72d74f605057c0c507a7a4e7a19",
+                        "key":"f4aa986bd3924fd0e4c4e8399",
+                        "time":1425151043,
+                        "msg":"Hey Satoshi, long time no talk. Crazy that nobody has figured out who you are yet, eh? Bitcoin is proceeding along just as we expected. Indeed, the 20mb block fork proposal has pushed the timeline up even faster than Hari Seldon would have predicted (haha). A severe drop in price, resulting in miners stuck with hardware paid for in fiat, resulting in these miners being incentivized to attack the network to recoup their fiat losses, will still likely deal the killing blow. We'll see if your suspicion is correct, and it is possible for the network effect to be transferred and not destroyed. I have high hopes - this proof of stake solution you helped me on has proven quite resilient. Oh and btw, mom wanted to know if you'd be back in town for Dad's birthday next month. Let me know. \n\nYour little bro,\nSunny King"
+                    }
+                ]
+            }
+            if (Math.floor(Math.random() * 50) == 3) {
+                //one in 50 generates server error
+                this.status = 500;
+            }
+        },
+    });
+
+    $.mockjax({
+        url: "/peermessage/check_setup_status/",
+        response: function() {
+            this.responseText = {
+                "status": "success",
+                "gpg_keys_setup": Math.round(Math.random()) ? true : false,
+                "public_key_published": Math.round(Math.random()) ? true : false,
+            }
+            if (Math.floor(Math.random() * 50) == 3) {
+                //one in 50 generates server error
+                this.status = 500;
+            }
+        },
+    });
+
+    $.mockjax({
+        url: "/peermessage/setup_gpg/",
+        response: function() {
+            this.responseText = {
+                "status": "success"
+            }
+            if (Math.floor(Math.random() * 50) == 3) {
+                //one in 50 generates server error
+                this.status = 500;
+            }
+        },
+    });
+
+    $.mockjax({
+        url: "/peermessage/publish_pk/",
+        response: function() {
+            this.responseText = {
+                "status": "success"
+            }
+            if (Math.floor(Math.random() * 50) == 3) {
+                //one in 50 generates server error
+                this.status = 500;
+            }
+        },
+    });
+
+    $.mockjax({
+        url: "/peermessage/transmit_message/",
+        response: function() {
+            this.responseText = {
+                "status": "success"
+            }
+            if (Math.floor(Math.random() * 50) == 3) {
+                //one in 50 generates server error
+                this.status = 500;
+            }
+        },
+    });
+
+    $.mockjax({
+        url: "/peermessage/mark_address_as_spam/",
+        response: function() {
+            this.responseText = {
+                "status": "success"
+            }
+            if (Math.floor(Math.random() * 50) == 3) {
+                //one in 50 generates server error
+                this.status = 500;
+            }
+        },
+    });
+
+    $.mockjax({
+        url: "/peermessage/delete_message/",
+        response: function() {
+            this.responseText = {
+                "status": "success"
+            }
+            if (Math.floor(Math.random() * 50) == 3) {
+                //one in 50 generates server error
+                this.status = 500;
+            }
+        },
+    });
+
+    $.mockjax({
+        url: "/check_peercoin_conf/",
+        response: function() {
+            this.responseText = {
+                "status": "success",
+                "config":{
+                    "gpg_suite_installed": Math.round(Math.random()) ? "good" : "bad",
+                    "rpcuser": Math.round(Math.random()) ? "sunnyking" : "",
+                    "rpcpassword": Math.round(Math.random()) ? "*******" : "",
+                    "server": Math.round(Math.random()) ? "1" : "0",
+                    "file_loc":"/Users/supersunny/Library/Application Support/PPCoin/ppcoin.conf",
+                    "wallet_connected_status": Math.round(Math.random()) ? "good" : "bad"
+                }
+            }
+            if (Math.floor(Math.random() * 50) == 3) {
+                //one in 50 generates server error
+                this.status = 500;
+            }
+        },
+    });
+
+    $.mockjax({
+        url: "/config_automatic_setup/",
+        response: function() {
+            this.responseText = {
+                "status": "success",
+                "config":{
+                    "wallet_connected_status":"bad",
+                    "gpg_suite_installed":"good",
+                    "rpcuser":"sunnyking",
+                    "rpcpassword":"*******",
+                    "file_loc":"/Users/supersunny/Library/Application Support/PPCoin/ppcoin.conf",
+                    "server":"1"
+                }
             }
             if (Math.floor(Math.random() * 50) == 3) {
                 //one in 50 generates server error
@@ -207,40 +387,6 @@ if (enable_mockjax) {
     });
 
     $.mockjax({
-        url: "/get_messages/",
-        response: function() {
-            var on_latest_block = Math.round(Math.random()) ? true : false;
-            this.responseText = {
-                "status":"success",
-                "data":[
-                    {
-                        "address_from":"mrHoasNQETW3mihPA3iC4vw7CzL3qyL4dn",
-                        "block_index":135545,
-                        "address_to":"mpTAKHnTGjMwLN5rYVb21vGCnNF96ZJaNB",
-                        "tx_id":"916ed531a94828f6e63f30c127f1263a6fbd6552c5c09234b26c8de3e36c363c",
-                        "key":"fac8ef0f962707a6737647774",
-                        "time":1424693971,
-                        "msg":"Welcome to the Peercoin Community! \n\nHave fun,\nSK"
-                    },
-                    {
-                        "address_from":"mhZLveeLmk3uXyX2pFYBgA9VrVcrTu9zDS",
-                        "block_index":136713,
-                        "address_to":"mpTAKHnTGjMwLN5rYVb21vGCnNF96ZJaNB",
-                        "tx_id":"777edb417c4bc54c6fbe32f993943acbd50ba72d74f605057c0c507a7a4e7a19",
-                        "key":"f4aa986bd3924fd0e4c4e8399",
-                        "time":1425151043,
-                        "msg":"Hey Satoshi, long time no talk. Crazy that nobody has figured out who you are yet, eh? Bitcoin is proceeding along just as we expected. Indeed, the 20mb block fork proposal has pushed the timeline up even faster than Hari Seldon would have predicted (haha). A severe drop in price, resulting in miners stuck with hardware paid for in fiat, resulting in these miners being incentivized to attack the network to recoup their fiat losses, will still likely deal the killing blow. We'll see if your suspicion is correct, and it is possible for the network effect to be transferred and not destroyed. I have high hopes - this proof of stake solution you helped me on has proven quite resilient. Oh and btw, mom wanted to know if you'd be back in town for Dad's birthday next month. Let me know. \n\nYour little bro,\nSunny King"
-                    }
-                ]
-            }
-            if (Math.floor(Math.random() * 50) == 3) {
-                //one in 50 generates server error
-                this.status = 500;
-            }
-        },
-    });
-
-    $.mockjax({
         url: "/blockchain_scan_status/",
         response: function() {
             var on_latest_block = Math.round(Math.random()) ? true : false;
@@ -256,125 +402,4 @@ if (enable_mockjax) {
         },
     });
 
-    $.mockjax({
-        url: "/check_setup_status/",
-        response: function() {
-            this.responseText = {
-                "status": "success",
-                "gpg_keys_setup": Math.round(Math.random()) ? true : false,
-                "public_key_published": Math.round(Math.random()) ? true : false,
-            }
-            if (Math.floor(Math.random() * 50) == 3) {
-                //one in 50 generates server error
-                this.status = 500;
-            }
-        },
-    });
-
-    $.mockjax({
-        url: "/setup_gpg/",
-        response: function() {
-            this.responseText = {
-                "status": "success"
-            }
-            if (Math.floor(Math.random() * 50) == 3) {
-                //one in 50 generates server error
-                this.status = 500;
-            }
-        },
-    });
-
-    $.mockjax({
-        url: "/publish_pk/",
-        response: function() {
-            this.responseText = {
-                "status": "success"
-            }
-            if (Math.floor(Math.random() * 50) == 3) {
-                //one in 50 generates server error
-                this.status = 500;
-            }
-        },
-    });
-
-    $.mockjax({
-        url: "/transmit_message/",
-        response: function() {
-            this.responseText = {
-                "status": "success"
-            }
-            if (Math.floor(Math.random() * 50) == 3) {
-                //one in 50 generates server error
-                this.status = 500;
-            }
-        },
-    });
-
-    $.mockjax({
-        url: "/mark_address_as_spam/",
-        response: function() {
-            this.responseText = {
-                "status": "success"
-            }
-            if (Math.floor(Math.random() * 50) == 3) {
-                //one in 50 generates server error
-                this.status = 500;
-            }
-        },
-    });
-    
-    $.mockjax({
-        url: "/delete_message/",
-        response: function() {
-            this.responseText = {
-                "status": "success"
-            }
-            if (Math.floor(Math.random() * 50) == 3) {
-                //one in 50 generates server error
-                this.status = 500;
-            }
-        },
-    });
-
-    $.mockjax({
-        url: "/check_peercoin_conf/",
-        response: function() {
-            this.responseText = {
-                "status": "success",
-                "config":{
-                    "gpg_suite_installed": Math.round(Math.random()) ? "good" : "bad",
-                    "rpcuser": Math.round(Math.random()) ? "sunnyking" : "",
-                    "rpcpassword": Math.round(Math.random()) ? "*******" : "",
-                    "server": Math.round(Math.random()) ? "1" : "0",
-                    "file_loc":"/Users/supersunny/Library/Application Support/PPCoin/ppcoin.conf",
-                    "wallet_connected_status": Math.round(Math.random()) ? "good" : "bad"
-                }
-            }
-            if (Math.floor(Math.random() * 50) == 3) {
-                //one in 50 generates server error
-                this.status = 500;
-            }
-        },
-    });
-
-    $.mockjax({
-        url: "/config_automatic_setup/",
-        response: function() {
-            this.responseText = {
-                "status": "success",
-                "config":{
-                    "wallet_connected_status":"bad",
-                    "gpg_suite_installed":"good",
-                    "rpcuser":"sunnyking",
-                    "rpcpassword":"*******",
-                    "file_loc":"/Users/supersunny/Library/Application Support/PPCoin/ppcoin.conf",
-                    "server":"1"
-                }
-            }
-            if (Math.floor(Math.random() * 50) == 3) {
-                //one in 50 generates server error
-                this.status = 500;
-            }
-        },
-    });
 }
