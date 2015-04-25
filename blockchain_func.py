@@ -1,8 +1,7 @@
 from bitcoinrpc.authproxy import JSONRPCException
 
 import json
-import time
-
+import datetime
 
 #Static load
 from peerblog.opreturn_scanner import parse as peerblog_moduleparse
@@ -47,7 +46,7 @@ def scan_block(rpc_raw):
         bi = rpc_raw.getblock(block_hash) #get list of tx_ids in block
         for tx_id in bi['tx']:
             if tx_id not in processed_transactions: #only process transactions once
-                block_time = bi['time'] if 'time' in bi else int(time.time())
+                block_time = bi['time'] if 'time' in bi else datetime.datetime.now()
                 parse_transaction(rpc_raw, tx_id, current_index, block_time)
 
         current_index += 1
@@ -69,7 +68,7 @@ def scan_block(rpc_raw):
         count_new = 0
         for tx_id in unconfirmed_transactions:
             if tx_id not in processed_transactions:
-                parse_transaction(rpc_raw, tx_id, current_index, int(time.time()))
+                parse_transaction(rpc_raw, tx_id, current_index, datetime.datetime.now())
                 processed_transactions[tx_id] = 1
                 count_new += 1
         print "(found", count_new, "transactions)"

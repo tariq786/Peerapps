@@ -4,7 +4,7 @@ import helpers
 import shutil
 from models import GPGKey, Spamlist, Message
 
-def parse(rpc_raw, local_db_session, op_return_data, from_user_address, block_index, tx_id, block_time):
+def parse(rpc_raw, op_return_data, from_user_address, block_index, tx_id, block_time):
     found_data = external_db.get_data(op_return_data[5:])
     if found_data:
         if op_return_data[2:5] == "pka": #Public Key Announcement
