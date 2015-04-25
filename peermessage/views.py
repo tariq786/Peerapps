@@ -222,18 +222,6 @@ def check_setup_status(request):
     }), content_type='application/json')
 
 @csrf_exempt
-def get_addresses(request):
-    """
-        Get all your addresses from your wallet.
-    """
-    rpc_raw = rpcRawProxy(helpers.get_rpc_url())
-    addresses = rpc_raw.listunspent(0)
-    return HttpResponse(json.dumps({
-        "status": "success",
-        "data":addresses
-    }, default=helpers.json_custom_parser), content_type='application/json')
-
-@csrf_exempt
 def peermessage(request):
     return render(request, 'peermessage.html', {})
 

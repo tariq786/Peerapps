@@ -217,7 +217,7 @@ function check_setup_status() {
 function blockchain_scan_status() {
     jQuery.ajax({
         type: "POST",
-        url: "blockchain_scan_status/",
+        url: "/blockchain_scan_status/",
         dataType: "json",
         data: {},
         success: function(data) {
@@ -269,7 +269,7 @@ var address_to_balance = {};
 $(document).ready(function(){
     jQuery.ajax({
         type: "POST",
-        url: "get_addresses/",
+        url: "/get_addresses/",
         dataType: "json",
         data: {},
         success: function(data) {
