@@ -25,7 +25,7 @@ def config_automatic_setup(request):
     return HttpResponse(json.dumps({
         "status": "success",
         "config": conf
-    }), content_type='application/json')
+    }, default=helpers.json_custom_parser), content_type='application/json')
 
 @csrf_exempt
 def check_peercoin_conf(request):
@@ -36,7 +36,7 @@ def check_peercoin_conf(request):
     return HttpResponse(json.dumps({
         "status": "success",
         "config": conf
-    }), content_type='application/json')
+    }, default=helpers.json_custom_parser), content_type='application/json')
 
 @csrf_exempt
 def blockchain_scan_status(request):
@@ -47,7 +47,7 @@ def blockchain_scan_status(request):
         "status":"success",
         "latest_block": latest_block,
         "blocks_left": blocks_left
-    }), content_type='application/json')
+    }, default=helpers.json_custom_parser), content_type='application/json')
 
 @csrf_exempt
 def get_addresses(request):

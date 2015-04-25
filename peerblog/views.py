@@ -21,7 +21,7 @@ def unsubscribe(request):
 
     return HttpResponse(json.dumps({
         "status": "success"
-    }), content_type='application/json')
+    }, default=helpers.json_custom_parser), content_type='application/json')
 
 @csrf_exempt
 def subscribe(request):
@@ -37,7 +37,7 @@ def subscribe(request):
 
     return HttpResponse(json.dumps({
         "status": "success"
-    }), content_type='application/json')
+    }, default=helpers.json_custom_parser), content_type='application/json')
 
 @csrf_exempt
 def view_latest_post(request):
@@ -54,7 +54,7 @@ def view_latest_post(request):
     return HttpResponse(json.dumps({
         "status": "success",
         "data": blog_post
-    }), content_type='application/json')
+    }, default=helpers.json_custom_parser), content_type='application/json')
 
 @csrf_exempt
 def get_blogs(request):
@@ -106,10 +106,12 @@ def get_blogs(request):
 
     results['browse'] = sorted(browsable_blogs.values(), key=lambda k: k['latest_post_time'])
 
+    print "results", results
+
     return HttpResponse(json.dumps({
         "status": "success",
         "data": results
-    }), content_type='application/json')
+    }, default=helpers.json_custom_parser), content_type='application/json')
 
 @csrf_exempt
 def scan_blogs(request):
@@ -123,7 +125,7 @@ def scan_blogs(request):
 
     return HttpResponse(json.dumps({
         "status": "success"
-    }), content_type='application/json')
+    }, default=helpers.json_custom_parser), content_type='application/json')
 
 @csrf_exempt
 def submit_blogpost(request):
@@ -140,9 +142,16 @@ def submit_blogpost(request):
         message += "|" + helpers.sign_string(rpc_raw, message, from_address)
     except JSONRPCException, e:
         if "passphrase" in e.error['message']:
-            return json.dumps({"status":"error", "message":"Wallet locked.", "type":"wallet_locked"})
+            return HttpResponse(json.dumps({
+                "status": "error",
+                "message":"Wallet locked.",
+                "type":"wallet_locked"
+            }, default=helpers.json_custom_parser), content_type='application/json')
         else:
-            return json.dumps({"status":"error", "message":"Error while trying to sign public key."})
+            return HttpResponse(json.dumps({
+                "status": "error",
+                "message":"Error while trying to sign public key."
+            }, default=helpers.json_custom_parser), content_type='application/json')
 
     message = helpers.format_outgoing(message)
     opreturn_key = external_db.post_data(message)
@@ -155,7 +164,7 @@ def submit_blogpost(request):
     blockchain_func.submit_opreturn(rpc_processed, from_address, op_return_data)
     return HttpResponse(json.dumps({
         "status": "success"
-    }), content_type='application/json')
+    }, default=helpers.json_custom_parser), content_type='application/json')
 
 @csrf_exempt
 def peerblog(request):

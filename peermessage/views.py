@@ -26,7 +26,7 @@ def autocomplete_address(request):
                 "value": k
             })
 
-    return HttpResponse(json.dumps(pub_keys), content_type='application/json')
+    return HttpResponse(json.dumps(pub_keys, default=helpers.json_custom_parser), content_type='application/json')
 
 @csrf_exempt
 def delete_message(request):
@@ -38,7 +38,7 @@ def delete_message(request):
 
     return HttpResponse(json.dumps({
         "status": "success"
-    }), content_type='application/json')
+    }, default=helpers.json_custom_parser), content_type='application/json')
 
 @csrf_exempt
 def remove_from_spamlist(request):
@@ -47,7 +47,7 @@ def remove_from_spamlist(request):
 
     return HttpResponse(json.dumps({
         "status": "success"
-    }), content_type='application/json')
+    }, default=helpers.json_custom_parser), content_type='application/json')
 
 @csrf_exempt
 def mark_address_as_spam(request):
@@ -64,7 +64,7 @@ def mark_address_as_spam(request):
 
     return HttpResponse(json.dumps({
         "status": "success"
-    }), content_type='application/json')
+    }, default=helpers.json_custom_parser), content_type='application/json')
 
 @csrf_exempt
 def get_spamlist(request):
@@ -82,7 +82,7 @@ def get_spamlist(request):
     return HttpResponse(json.dumps({
         "status": "success",
         "data": results
-    }), content_type='application/json')
+    }, default=helpers.json_custom_parser), content_type='application/json')
 
 @csrf_exempt
 def get_messages(request):
@@ -106,7 +106,7 @@ def get_messages(request):
     return HttpResponse(json.dumps({
         "status": "success",
         "data": messages
-    }), content_type='application/json')
+    }, default=helpers.json_custom_parser), content_type='application/json')
 
 @csrf_exempt
 def transmit_message(request):
@@ -118,11 +118,18 @@ def transmit_message(request):
     message = request.POST['message']
     rpc_raw = rpcRawProxy(helpers.get_rpc_url())
     if not os.path.isdir(os.getcwd()+"/public_keys/gpg_"+to_address):
-        return json.dumps({"status":"error", "msg":"No public key found for that address."})
+        return HttpResponse(json.dumps({
+            "status": "error",
+            "message": "No public key found for that address."
+        }, default=helpers.json_custom_parser), content_type='application/json')
+    
     try:
         enc_message = helpers.encrypt_string(message, to_address)
-    except IOError:
-        return json.dumps({"status":"error", "msg":"No public key found for that address."})
+    except:
+        return HttpResponse(json.dumps({
+            "status": "error",
+            "message": "No public key found for that address."
+        }, default=helpers.json_custom_parser), content_type='application/json')
 
     if request.POST.get('wallet_passphrase', False):
         rpc_raw.walletpassphrase(request.POST['wallet_passphrase'], 60)
@@ -130,9 +137,16 @@ def transmit_message(request):
         enc_message += "|" + helpers.sign_string(rpc_raw, enc_message, from_address)
     except JSONRPCException, e:
         if "passphrase" in e.error['message']:
-            return json.dumps({"status":"error", "message":"Wallet locked.", "type":"wallet_locked"})
+            return HttpResponse(json.dumps({
+                "status": "error",
+                "message": "Wallet locked.",
+                "type": "wallet_locked"
+            }, default=helpers.json_custom_parser), content_type='application/json')
         else:
-            return json.dumps({"status":"error", "message":"Error while trying to sign public key."})
+            return HttpResponse(json.dumps({
+                "status": "error",
+                "message": "Error while trying to sign public key."
+            }, default=helpers.json_custom_parser), content_type='application/json')
 
     enc_message = helpers.format_outgoing(enc_message)
     opreturn_key = external_db.post_data(enc_message)
@@ -146,7 +160,7 @@ def transmit_message(request):
 
     return HttpResponse(json.dumps({
         "status": "success"
-    }), content_type='application/json')
+    }, default=helpers.json_custom_parser), content_type='application/json')
 
 @csrf_exempt
 def publish_pk(request):
@@ -157,7 +171,11 @@ def publish_pk(request):
     try:
         pub_key = helpers.get_pk(address)
     except ValueError:
-        return json.dumps({"status":"error", "message":"Must create GPG keys before publishing them!"})
+        return HttpResponse(json.dumps({
+            "status": "error",
+            "message": "Must create GPG keys before publishing them!"
+        }, default=helpers.json_custom_parser), content_type='application/json')
+    
     rpc_raw = rpcRawProxy(helpers.get_rpc_url())
     if request.POST.get('wallet_passphrase', False):
         rpc_raw.walletpassphrase(request.POST['wallet_passphrase'], 60)
@@ -165,9 +183,16 @@ def publish_pk(request):
         pub_key += "|" + helpers.sign_string(rpc_raw, pub_key, address)
     except JSONRPCException, e:
         if "passphrase" in e.error['message']:
-            return json.dumps({"status":"error", "message":"Wallet locked.", "type":"wallet_locked"})
+            return HttpResponse(json.dumps({
+                "status": "error",
+                "message": "Wallet locked.",
+                "type": "wallet_locked"
+            }, default=helpers.json_custom_parser), content_type='application/json')
         else:
-            return json.dumps({"status":"error", "message":"Error while trying to sign public key."})
+            return HttpResponse(json.dumps({
+                "status": "error",
+                "message": "Error while trying to sign public key."
+            }, default=helpers.json_custom_parser), content_type='application/json')
 
     pub_key = helpers.format_outgoing(pub_key)
     opreturn_key = external_db.post_data(pub_key)
@@ -193,7 +218,7 @@ def publish_pk(request):
 
     return HttpResponse(json.dumps({
         "status": "success"
-    }), content_type='application/json')
+    }, default=helpers.json_custom_parser), content_type='application/json')
 
 @csrf_exempt
 def setup_gpg(request):
@@ -204,7 +229,7 @@ def setup_gpg(request):
 
     return HttpResponse(json.dumps({
         "status": "success"
-    }), content_type='application/json')
+    }, default=helpers.json_custom_parser), content_type='application/json')
 
 @csrf_exempt
 def check_setup_status(request):
@@ -219,7 +244,7 @@ def check_setup_status(request):
         "status": "success",
         "gpg_keys_setup": helpers.check_gpg_status(address),
         "public_key_published": public_key_pubbed
-    }), content_type='application/json')
+    }, default=helpers.json_custom_parser), content_type='application/json')
 
 @csrf_exempt
 def peermessage(request):

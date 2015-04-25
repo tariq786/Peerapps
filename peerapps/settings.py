@@ -81,15 +81,19 @@ USE_L10N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
-STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, "frontend/static/"),
-)
+import sys
+if 'runserver' in sys.argv:
+    #Static files serve by python manage.py runserver
+    STATICFILES_DIRS = (
+        os.path.join(BASE_DIR, "frontend/static/"),
+    )
+else:
+    #Static files served by cherry py
+    STATIC_ROOT = os.path.join(BASE_DIR, "frontend/static/")
 
-STATIC_ROOT = os.path.join(BASE_DIR, "frontend/static/")
 STATIC_URL = '/static/'
 
 SETTINGS_PATH = os.path.dirname(os.path.dirname(__file__))

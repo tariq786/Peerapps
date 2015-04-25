@@ -34,7 +34,7 @@ def peercoin_minting_data(request):
         "status": "success",
         "difficulty": str(difficulty['proof-of-stake']),
         "data": minting_data
-    }), content_type='application/json')
+    }, default=helpers.json_custom_parser), content_type='application/json')
 
 @csrf_exempt
 def peercoin_minting(request):

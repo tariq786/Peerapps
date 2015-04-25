@@ -6,6 +6,7 @@ from decimal import Decimal
 import platform
 from bitcoinrpc.authproxy import AuthServiceProxy
 import external_db
+import time
 
 import shutil
 
@@ -218,7 +219,6 @@ def json_custom_parser(obj):
     if isinstance(obj, Decimal):
         return str(obj)
     elif isinstance(obj, datetime.datetime) or isinstance(obj, datetime.date):
-        dot_ix = 19 # 'YYYY-MM-DDTHH:MM:SS.mmmmmm+HH:MM'.find('.')
-        return obj.isoformat()[:dot_ix]
+        return time.mktime(obj.timetuple())
     else:
         raise TypeError(obj)
