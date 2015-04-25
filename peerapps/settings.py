@@ -105,7 +105,6 @@ SETTINGS_PATH = os.path.dirname(os.path.dirname(__file__))
 TEMPLATE_DIRS = (
     os.path.join(SETTINGS_PATH, 'frontend'),
 )
-print os.path.join(BASE_DIR, "frontend")
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, "frontend/static/"),
 )
