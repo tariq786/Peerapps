@@ -38,4 +38,4 @@ def peercoin_minting_data(request):
 
 @csrf_exempt
 def peercoin_minting(request):
-    return render(request, 'frontend/peercoin_minting.html', {})
+    return render(request, 'peercoin_minting.html', {})

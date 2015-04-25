@@ -235,8 +235,8 @@ def get_addresses(request):
 
 @csrf_exempt
 def peermessage(request):
-    return render(request, 'frontend/peermessage.html', {})
+    return render(request, 'peermessage.html', {})
 
 @csrf_exempt
 def spamlist(request):
-    return render(request, 'frontend/spamlist.html', {})
+    return render(request, 'spamlist.html', {})

@@ -159,4 +159,4 @@ def submit_blogpost(request):
 
 @csrf_exempt
 def peerblog(request):
-    return render(request, 'frontend/peerblog.html', {})
+    return render(request, 'peerblog.html', {})

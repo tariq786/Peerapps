@@ -14,6 +14,10 @@ PeerApps
 
 ### Install wxPython
  - [Link](http://www.wxpython.org/download.php)
+ - Alternatively:
+    ```
+    sudo pip install --upgrade --pre -f http://wxpython.org/Phoenix/snapshot-builds/ wxPython_Phoenix
+    ```
 
 ### Install OpenSSL
 OSX

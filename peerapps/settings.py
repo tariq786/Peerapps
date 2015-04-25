@@ -53,22 +53,6 @@ MIDDLEWARE_CLASSES = (
 
 ROOT_URLCONF = 'peerapps.urls'
 
-TEMPLATES = [
-    {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
-            ],
-        },
-    },
-]
-
 WSGI_APPLICATION = 'peerapps.wsgi.application'
 
 
@@ -101,11 +85,27 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
-SETTINGS_PATH = os.path.dirname(os.path.dirname(__file__))
-TEMPLATE_DIRS = (
-    os.path.join(SETTINGS_PATH, 'frontend'),
-)
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, "frontend/static/"),
 )
+
 STATIC_URL = '/static/'
+
+SETTINGS_PATH = os.path.dirname(os.path.dirname(__file__))
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [
+            os.path.join(SETTINGS_PATH, 'frontend/')
+        ],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
+]

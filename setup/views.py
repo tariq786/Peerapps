@@ -2,8 +2,9 @@ from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
 import json
-import helpers
+import helpers, blockchain_func
 import random
+from bitcoinrpc.authproxy import AuthServiceProxy as rpcRawProxy
 
 @csrf_exempt
 def config_automatic_setup(request):
@@ -38,5 +39,16 @@ def check_peercoin_conf(request):
     }), content_type='application/json')
 
 @csrf_exempt
+def blockchain_scan_status(request):
+    rpc_raw = rpcRawProxy(helpers.get_rpc_url())
+    latest_block, blocks_left = blockchain_func.get_blockchain_scan_status(rpc_raw)
+
+    return HttpResponse(json.dumps({
+        "status":"success",
+        "latest_block": latest_block,
+        "blocks_left": blocks_left
+    }), content_type='application/json')
+
+@csrf_exempt
 def setup(request):
-    return render(request, 'setup.html', {})
+    return render(request, 'setup.html')

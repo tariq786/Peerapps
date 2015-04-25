@@ -7,5 +7,5 @@ urlpatterns = patterns('',
     url(r'^get_blogs/$', "peerblog.views.get_blogs"),
     url(r'^scan_blogs/$', "peerblog.views.scan_blogs"),
     url(r'^submit_blogpost/$', "peerblog.views.submit_blogpost"),
-    url(r'^peerblog/$', "peerblog.views.peerblog")
+    url(r'^$', "peerblog.views.peerblog")
 )

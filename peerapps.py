@@ -1,16 +1,19 @@
-import json
-import helpers, blockchain_func
 from bitcoinrpc.authproxy import AuthServiceProxy as rpcRawProxy
 import webbrowser
 import wx
 import thread
 import time
-from bottle import static_file, redirect, Bottle
 import sys
+import os
 sys.path.append('./')
 
 #clear out pyc files
 #find . -name '*.pyc' -delete
+
+os.environ['DJANGO_SETTINGS_MODULE'] = 'peerapps.settings'
+import django
+django.setup()
+import helpers, blockchain_func
 
 class mainFrame(wx.Frame):
     global settings
@@ -105,13 +108,13 @@ class MyTaskBarIcon(wx.TaskBarIcon):
         return tbmenu
 
     def GoToSetup(self, event):
-        webbrowser.open("http://127.0.0.1:8011/setup.html")
+        webbrowser.open("http://127.0.0.1:8011/")
 
     def GoToPeerMessage(self, event):
-        webbrowser.open("http://127.0.0.1:8011/peermessage.html")
+        webbrowser.open("http://127.0.0.1:8011/peermessage/")
 
     def GoToPeerBlog(self, event):
-        webbrowser.open("http://127.0.0.1:8011/peerblog.html")
+        webbrowser.open("http://127.0.0.1:8011/peerblog/")
 
     def GoToPeercoinTalk(self, event):
         webbrowser.open("http://www.peercointalk.org/")
@@ -127,46 +130,20 @@ class MyApp(wx.App):
         self.Destroy()
 
 def start_webserver():
-    rootApp = Bottle()
+    from cherrypy import wsgiserver
+    import django.core.handlers.wsgi
+    server = wsgiserver.CherryPyWSGIServer(
+        ('127.0.0.1', 8011),
+        django.core.handlers.wsgi.WSGIHandler(),
+        server_name='www.django.peerapps',
+        numthreads = 5,
+    )
 
-    @rootApp.route('/blockchain_scan_status', method='POST')
-    def blockchain_scan_status():
-        rpc_raw = rpcRawProxy(helpers.get_rpc_url())
-        latest_block, blocks_left = blockchain_func.get_blockchain_scan_status(rpc_raw)
-        return json.dumps({
-            "status":"success",
-            "latest_block": latest_block,
-            "blocks_left": blocks_left
-        })
-
-    @rootApp.route('/')
-    def base():
-        redirect("/setup")
-
-    @rootApp.route('/static/:filename#.*#')
-    def send_static(filename):
-        return static_file(filename, root='./frontend/static/')
-
-    #Load all sub-modules url paths into webserver
-
-    #Static load
-    from modules.peerblog.server import moduleApp as peerblog_moduleApp
-    rootApp.merge(peerblog_moduleApp)
-    from modules.peermessage.server import moduleApp as peermessage_moduleApp
-    rootApp.merge(peermessage_moduleApp)
-    from modules.setup.server import moduleApp as setup_moduleApp
-    rootApp.merge(setup_moduleApp)
-    from modules.minting.server import moduleApp as minting_moduleApp
-    rootApp.merge(minting_moduleApp)
-
-    #Dynamic Load
-    #for name in os.listdir("./modules/"):
-    #    if os.path.isfile("./modules/"+name+"/server.py"):
-    #        exec "from modules."+name+".server import moduleApp as "+name+"_moduleApp" in globals(), locals()
-    #        rootApp.merge(locals()[name+"_moduleApp"])
-
-    webbrowser.open("http://127.0.0.1:8011/setup.html")
-    rootApp.run(host='127.0.0.1', port=8011, server='cherrypy')
+    webbrowser.open("http://127.0.0.1:8011/")
+    try:
+        server.start()
+    except KeyboardInterrupt:
+        server.stop()
 
 def scan_blockchain():
     """
@@ -177,11 +154,12 @@ def scan_blockchain():
         try:
             latest_block, blocks_left = blockchain_func.scan_block(rpc_raw)
             app.wxPeerApps.statusConnected()
+            if latest_block:
+                print "On the latest block, sleeping for 10 seconds"
+                time.sleep(10)
         except:
             app.wxPeerApps.statusDisconnected()
-        if latest_block:
-            print "On the latest block, sleeping for 10 seconds"
-            time.sleep(10)
+        time.sleep(2)
 
 
 app = MyApp(0)
