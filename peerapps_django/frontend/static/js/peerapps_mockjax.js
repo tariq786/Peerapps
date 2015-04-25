@@ -2,7 +2,7 @@ var enable_mockjax = false; //set to false to disable mockjax and use the real s
 if (enable_mockjax) {
 
     $.mockjax({
-        url: "/get_blogs",
+        url: "/get_blogs/",
         response: function() {
             this.responseText = {
                 "status":"success",
@@ -44,7 +44,7 @@ if (enable_mockjax) {
     });
 
     $.mockjax({
-        url: "/scan_blogs",
+        url: "/scan_blogs/",
         response: function() {
             this.responseText = {
                 "status": "success"
@@ -57,7 +57,7 @@ if (enable_mockjax) {
     });
 
     $.mockjax({
-        url: "/submit_blogpost",
+        url: "/submit_blogpost/",
         response: function() {
             this.responseText = {
                 "status": "success"
@@ -70,7 +70,7 @@ if (enable_mockjax) {
     });
 
     $.mockjax({
-        url: "/view_latest_post",
+        url: "/view_latest_post/",
         response: function() {
             this.responseText = {
                 "status":"success",
@@ -84,7 +84,7 @@ if (enable_mockjax) {
     });
 
     $.mockjax({
-        url: "/subscribe",
+        url: "/subscribe/",
         response: function() {
             this.responseText = {
                 "status": "success"
@@ -97,7 +97,7 @@ if (enable_mockjax) {
     });
 
     $.mockjax({
-        url: "/unsubscribe",
+        url: "/unsubscribe/",
         response: function() {
             this.responseText = {
                 "status": "success"
@@ -110,7 +110,7 @@ if (enable_mockjax) {
     });
 
     $.mockjax({
-        url: "/get_spamlist",
+        url: "/get_spamlist/",
         response: function() {
             this.responseText = {
                 "status":"success",
@@ -130,7 +130,7 @@ if (enable_mockjax) {
 
 
     $.mockjax({
-        url: "/mark_address_as_spam",
+        url: "/mark_address_as_spam/",
         response: function() {
             this.responseText = {
                 "status": "success"
@@ -143,7 +143,7 @@ if (enable_mockjax) {
     });
 
     $.mockjax({
-        url: "/remove_from_spamlist",
+        url: "/remove_from_spamlist/",
         response: function() {
             this.responseText = {
                 "status": "success"
@@ -156,7 +156,7 @@ if (enable_mockjax) {
     });
 
     $.mockjax({
-        url: "/get_addresses",
+        url: "/get_addresses/",
         response: function() {
             var on_latest_block = Math.round(Math.random()) ? true : false;
             this.responseText = {
@@ -207,7 +207,7 @@ if (enable_mockjax) {
     });
 
     $.mockjax({
-        url: "/get_messages",
+        url: "/get_messages/",
         response: function() {
             var on_latest_block = Math.round(Math.random()) ? true : false;
             this.responseText = {
@@ -241,7 +241,7 @@ if (enable_mockjax) {
     });
 
     $.mockjax({
-        url: "/blockchain_scan_status",
+        url: "/blockchain_scan_status/",
         response: function() {
             var on_latest_block = Math.round(Math.random()) ? true : false;
             this.responseText = {
@@ -257,7 +257,7 @@ if (enable_mockjax) {
     });
 
     $.mockjax({
-        url: "/check_setup_status",
+        url: "/check_setup_status/",
         response: function() {
             this.responseText = {
                 "status": "success",
@@ -272,7 +272,7 @@ if (enable_mockjax) {
     });
 
     $.mockjax({
-        url: "/setup_gpg",
+        url: "/setup_gpg/",
         response: function() {
             this.responseText = {
                 "status": "success"
@@ -285,7 +285,7 @@ if (enable_mockjax) {
     });
 
     $.mockjax({
-        url: "/publish_pk",
+        url: "/publish_pk/",
         response: function() {
             this.responseText = {
                 "status": "success"
@@ -298,7 +298,7 @@ if (enable_mockjax) {
     });
 
     $.mockjax({
-        url: "/transmit_message",
+        url: "/transmit_message/",
         response: function() {
             this.responseText = {
                 "status": "success"
@@ -311,7 +311,7 @@ if (enable_mockjax) {
     });
 
     $.mockjax({
-        url: "/mark_address_as_spam",
+        url: "/mark_address_as_spam/",
         response: function() {
             this.responseText = {
                 "status": "success"
@@ -324,7 +324,7 @@ if (enable_mockjax) {
     });
     
     $.mockjax({
-        url: "/delete_message",
+        url: "/delete_message/",
         response: function() {
             this.responseText = {
                 "status": "success"
@@ -337,7 +337,7 @@ if (enable_mockjax) {
     });
 
     $.mockjax({
-        url: "/check_peercoin_conf",
+        url: "/check_peercoin_conf/",
         response: function() {
             this.responseText = {
                 "status": "success",
@@ -358,7 +358,7 @@ if (enable_mockjax) {
     });
 
     $.mockjax({
-        url: "/config_automatic_setup",
+        url: "/config_automatic_setup/",
         response: function() {
             this.responseText = {
                 "status": "success",

@@ -5,7 +5,7 @@ import datetime
 from decimal import Decimal
 import platform
 from bitcoinrpc.authproxy import AuthServiceProxy
-import local_db, external_db
+import external_db
 
 import shutil
 
