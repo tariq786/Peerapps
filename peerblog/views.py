@@ -47,7 +47,7 @@ def view_latest_post(request):
     address = request.POST.get('address')
     rpc_raw = rpcRawProxy(helpers.get_rpc_url())
 
-    latest_blog_post = Blog.objects.filter(address_from=address).order_by('-time')
+    latest_blog_post = Blog.objects.filter(address_from=address).order_by('-time')[0]
 
     blog_post = helpers.download_blg(rpc_raw, latest_blog_post.key, latest_blog_post.address_from)
 
@@ -105,8 +105,6 @@ def get_blogs(request):
             browsable_blogs[m.address_from]['total_posts'] += 1
 
     results['browse'] = sorted(browsable_blogs.values(), key=lambda k: k['latest_post_time'])
-
-    print "results", results
 
     return HttpResponse(json.dumps({
         "status": "success",
