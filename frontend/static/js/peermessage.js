@@ -300,7 +300,7 @@ $(document).ready(function(){
     blockchain_scan_status();
 
     $( "#new_message_address" ).autocomplete({
-        source: "autocomplete_address/",
+        source: "peermessage/autocomplete_address/",
         minLength: 0,
         select: function( event, ui ) {
             console.log( ui.item ?

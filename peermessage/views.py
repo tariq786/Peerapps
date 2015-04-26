@@ -16,7 +16,7 @@ def autocomplete_address(request):
     """
         Used on inbox, when sending a message returns all addresses you have public keys for
     """
-    q = request.POST['term']
+    q = request.GET['term']
     pub_keys = []
     for name in os.listdir("./public_keys/"):
         if "gpg_" in name and q.lower() in name.lower():

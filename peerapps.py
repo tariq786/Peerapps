@@ -135,7 +135,7 @@ def start_webserver():
     server = wsgiserver.CherryPyWSGIServer(
         ('127.0.0.1', 8011),
         django.core.handlers.wsgi.WSGIHandler(),
-        numthreads = 5,
+        numthreads = 20,
     )
 
     try:
