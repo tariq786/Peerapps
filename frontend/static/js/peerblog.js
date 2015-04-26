@@ -194,7 +194,7 @@ function get_blogs() {
             //My Blog
             var html = "";
             jQuery.each(data.data.mine, function(k,v){
-                v['time'] = moment(v['time']*1000).calendar();
+                v.time = moment(v.time*1000).calendar();
                 html += ich.myblog_template(v, true);
             });
             jQuery('#my_blog_posts').html(html);
@@ -202,7 +202,7 @@ function get_blogs() {
             //Subscription Blogs
             html = "";
             jQuery.each(data.data.sub, function(k,v){
-                v['time'] = moment(v['time']*1000).calendar();
+                v.time = moment(v.time*1000).calendar();
                 html += ich.sub_template(v, true);
             });
             jQuery('#sub_blog_posts').html(html);
@@ -211,7 +211,7 @@ function get_blogs() {
             //browse_blogs
             html = "";
             jQuery.each(data.data.browse, function(k,v){
-                v['latest_post_time'] = moment(v['latest_post_time']*1000).calendar();
+                v.latest_post_time = moment(v.latest_post_time*1000).calendar();
                 html += ich.browse_template(v, true);
             });
             jQuery('#browse_blogs').html(html);

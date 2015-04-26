@@ -63,4 +63,7 @@ def get_addresses(request):
 
 @csrf_exempt
 def setup(request):
-    return render(request, 'setup.html')
+    html = ""
+    with open("frontend/setup.html") as f:
+        html = f.read()
+    return HttpResponse(html, content_type="text/html")

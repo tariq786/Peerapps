@@ -248,8 +248,14 @@ def check_setup_status(request):
 
 @csrf_exempt
 def peermessage(request):
-    return render(request, 'peermessage.html', {})
+    html = ""
+    with open("frontend/peermessage.html") as f:
+        html = f.read()
+    return HttpResponse(html, content_type="text/html")
 
 @csrf_exempt
 def spamlist(request):
-    return render(request, 'spamlist.html', {})
+    html = ""
+    with open("frontend/spamlist.html") as f:
+        html = f.read()
+    return HttpResponse(html, content_type="text/html")
