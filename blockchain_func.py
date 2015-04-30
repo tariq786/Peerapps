@@ -10,23 +10,23 @@ from peermessage.opreturn_scanner import parse as peermessage_moduleparse
 from setup.models import BlockchainScan, MemPoolScan
 
 def get_blockchain_scan_status(rpc_raw):
+    blockcount = rpc_raw.getblockcount()
     bkscan = BlockchainScan.objects.all().first() #Attempt to pick up where we left off.
     if not bkscan: #First scan!
-        bkscan = BlockchainScan(last_index=145000)
+        bkscan = BlockchainScan(last_index=(blockcount-1000))
         bkscan.save()
     current_index = bkscan.last_index
-    blockcount = rpc_raw.getblockcount()
     on_latest_block = True if current_index >= blockcount else False
     return on_latest_block, blockcount - current_index
 
 
 def scan_block(rpc_raw):
+    blockcount = rpc_raw.getblockcount()
     bkscan = BlockchainScan.objects.all().first() #Attempt to pick up where we left off.
     if not bkscan: #First scan!
-        bkscan = BlockchainScan(last_index=145000)
+        bkscan = BlockchainScan(last_index=(blockcount-1000))
         bkscan.save()
     current_index = bkscan.last_index
-    blockcount = rpc_raw.getblockcount()
     on_latest_block = True if current_index >= blockcount else False
 
     processed_transactions = {}
