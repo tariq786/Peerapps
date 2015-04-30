@@ -129,8 +129,7 @@ def get_config():
             k, v = line.split('=', 1)
             conf[k.strip()] = v.strip()
 
-        service_port = 9904
-        conf['rpcport'] = int(conf.get('rpcport', service_port))
+        conf['rpcport'] = int(conf.get('rpcport', -1))
         conf['rpcssl'] = conf.get('rpcssl', '0')
 
         if conf['rpcssl'].lower() in ('0', 'false'):
@@ -139,6 +138,12 @@ def get_config():
             conf['rpcssl'] = True
         else:
             raise ValueError('Unknown rpcssl value %r' % conf['rpcssl'])
+
+    if conf['rpcport'] == -1:
+        if 'testnet' in conf and conf['testnet'] in ['1', 'true']:
+            conf['rpcport'] = 9904
+        else:
+            conf['rpcport'] = 9902
 
     conf['file_loc'] = btc_conf_file
     return conf
