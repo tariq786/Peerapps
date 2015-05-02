@@ -14,7 +14,6 @@ urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
 
     url(r'^peermessage/', include('peermessage.urls')),
-    url(r'^peermarket/', include('peermarket.urls')),
     url(r'^peerblog/', include('peerblog.urls')),
     url(r'^peercoin_minting/', include('minting.urls')),
 

@@ -1,5 +1,5 @@
 """
-py2app/py2exe build script for MyApplication.
+py2app/py2exe build script for PeerApps.
 
 Will automatically ensure that all build prerequisites are available
 via ez_setup
@@ -10,6 +10,7 @@ Usage (Mac OS X):
 Usage (Windows):
     python setup.py py2exe
 """
+
 import ez_setup
 ez_setup.use_setuptools()
 

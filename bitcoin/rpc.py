@@ -90,7 +90,13 @@ class RawProxy(object):
 
                 if service_port is None:
                     service_port = bitcoin.params.RPC_PORT
-                conf['rpcport'] = int(conf.get('rpcport', service_port))
+
+
+                if 'testnet' in conf and conf['testnet'] in ['1', 'true']:
+                    conf['rpcport'] = 9904
+                else:
+                    conf['rpcport'] = 9902
+
                 conf['rpcssl'] = conf.get('rpcssl', '0')
 
                 if conf['rpcssl'].lower() in ('0', 'false'):

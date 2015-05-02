@@ -97,6 +97,7 @@ function submit_new_message(wallet_passphrase) {
                 $('#new_message_address').val('');
                 alert("Message sent!");
             }
+            check_setup_status();
         },
         error: function (e) {
             console.log("error", e);
@@ -234,6 +235,7 @@ function blockchain_scan_status() {
         },
         error: function (e) {
             console.log("error", e);
+            setTimeout("blockchain_scan_status()", 30000);
         }
     });
 }
@@ -262,6 +264,7 @@ function get_messages() {
         },
         error: function (e) {
             console.log("error", e);
+            setTimeout("get_messages()", 10000);
         }
     });
 }

@@ -1,4 +1,3 @@
-from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
 import json
@@ -117,12 +116,15 @@ def transmit_message(request):
     to_address = request.POST['to_address']
     message = request.POST['message']
     rpc_raw = rpcRawProxy(helpers.get_rpc_url())
+
+    #get to_address's GPG pub key
     if not os.path.isdir(os.getcwd()+"/public_keys/gpg_"+to_address):
         return HttpResponse(json.dumps({
             "status": "error",
             "message": "No public key found for that address."
         }, default=helpers.json_custom_parser), content_type='application/json')
     
+    #encrypt message to to_address
     try:
         enc_message = helpers.encrypt_string(message, to_address)
     except:
@@ -148,8 +150,34 @@ def transmit_message(request):
                 "message": "Error while trying to sign public key."
             }, default=helpers.json_custom_parser), content_type='application/json')
 
-    enc_message = helpers.format_outgoing(enc_message)
-    opreturn_key = external_db.post_data(enc_message)
+    #get from_address pub_key
+    try:
+        pub_key = helpers.get_pk(from_address)
+    except ValueError:
+        return HttpResponse(json.dumps({
+            "status": "error",
+            "message": "Must create GPG keys before sending messages!"
+        }, default=helpers.json_custom_parser), content_type='application/json')
+    
+    rpc_raw = rpcRawProxy(helpers.get_rpc_url())
+    if request.POST.get('wallet_passphrase', False):
+        rpc_raw.walletpassphrase(request.POST['wallet_passphrase'], 60)
+    try:
+        signed_pub_key = pub_key + "|" + helpers.sign_string(rpc_raw, pub_key, from_address)
+    except JSONRPCException, e:
+            return HttpResponse(json.dumps({
+                "status": "error",
+                "message": "Error while trying to sign public key."
+            }, default=helpers.json_custom_parser), content_type='application/json')
+#signed_pub_key append to json string in message
+
+    #create a json structure to be posted externally, including the encrypted message to to_address, and from_address's pub key.
+    final_output = helpers.format_outgoing(json.dumps({
+        "msg": enc_message,
+        "pub_key": signed_pub_key
+    }))
+
+    opreturn_key = external_db.post_data(final_output)
 
     op_return_data = "pm" #program code (peermessage), 2 chars
     op_return_data += "msg" #opcode (message), 3 chars
@@ -175,12 +203,12 @@ def publish_pk(request):
             "status": "error",
             "message": "Must create GPG keys before publishing them!"
         }, default=helpers.json_custom_parser), content_type='application/json')
-    
+
     rpc_raw = rpcRawProxy(helpers.get_rpc_url())
     if request.POST.get('wallet_passphrase', False):
         rpc_raw.walletpassphrase(request.POST['wallet_passphrase'], 60)
     try:
-        pub_key += "|" + helpers.sign_string(rpc_raw, pub_key, address)
+        signed_pub_key = pub_key + "|" + helpers.sign_string(rpc_raw, pub_key, address)
     except JSONRPCException, e:
         if "passphrase" in e.error['message']:
             return HttpResponse(json.dumps({
@@ -194,8 +222,8 @@ def publish_pk(request):
                 "message": "Error while trying to sign public key."
             }, default=helpers.json_custom_parser), content_type='application/json')
 
-    pub_key = helpers.format_outgoing(pub_key)
-    opreturn_key = external_db.post_data(pub_key)
+    encoded_signed_pub_key = helpers.format_outgoing(signed_pub_key)
+    opreturn_key = external_db.post_data(encoded_signed_pub_key)
 
     op_return_data = "pm" #program code (peermessage), 2 chars
     op_return_data += "pka" #opcode (public key announce), 3 chars
