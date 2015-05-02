@@ -9,6 +9,7 @@ from bitcoinrpc.authproxy import JSONRPCException, AuthServiceProxy as rpcRawPro
 import external_db
 from models import Message, Spamlist, GPGKey
 import datetime
+import peerapps.settings
 
 @csrf_exempt
 def autocomplete_address(request):
@@ -118,7 +119,7 @@ def transmit_message(request):
     rpc_raw = rpcRawProxy(helpers.get_rpc_url())
 
     #get to_address's GPG pub key
-    if not os.path.isdir(os.getcwd()+"/public_keys/gpg_"+to_address):
+    if not os.path.isdir(peerapps.settings.BASE_DIR+"/public_keys/gpg_"+to_address):
         return HttpResponse(json.dumps({
             "status": "error",
             "message": "No public key found for that address."
@@ -277,13 +278,15 @@ def check_setup_status(request):
 @csrf_exempt
 def peermessage(request):
     html = ""
-    with open("frontend/peermessage.html") as f:
+    import peerapps.settings
+    with open(peerapps.settings.PEERAPPS_FRONTEND_ROOT+"/peermessage.html") as f:
         html = f.read()
     return HttpResponse(html, content_type="text/html")
 
 @csrf_exempt
 def spamlist(request):
     html = ""
-    with open("frontend/spamlist.html") as f:
+    import peerapps.settings
+    with open(peerapps.settings.PEERAPPS_FRONTEND_ROOT+"/spamlist.html") as f:
         html = f.read()
     return HttpResponse(html, content_type="text/html")

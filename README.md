@@ -51,6 +51,9 @@ Windows
  - ``` $ python manage.py runserver 8011 ```
  - This runs the django app using django's built in webserver. This will automatically reload the server for each code change you make, making development easier. On the downside, the blockchain is not being scanned in a background thread.
 
+### Building binaries
+ - OSX: ``` python freeze.py py2app ```
+ - Windows: ``` python freeze.py py2exe ```
 
 ## Changelog
 

@@ -14,6 +14,7 @@ os.environ['DJANGO_SETTINGS_MODULE'] = 'peerapps.settings'
 import django
 django.setup()
 import helpers, blockchain_func
+import peerapps.settings
 
 class mainFrame(wx.Frame):
     global settings
@@ -39,7 +40,7 @@ class mainFrame(wx.Frame):
         self.tskic.statusDisconnected()
 
     def statusConnected(self):
-        icon1 = wx.Icon("frontend/static/images/peerapps.png", wx.BITMAP_TYPE_PNG)
+        icon1 = wx.Icon(peerapps.settings.STATIC_ROOT+"images/peerapps.png", wx.BITMAP_TYPE_PNG)
         self.SetIcon(icon1)
         self.tskic.statusConnected()
 
@@ -61,8 +62,7 @@ class MyTaskBarIcon(wx.TaskBarIcon):
         wx.TaskBarIcon.__init__(self)
 
         self.frame = frame
-
-        myimage = wx.Bitmap('frontend/static/images/peerapps.png', wx.BITMAP_TYPE_PNG)
+        myimage = wx.Bitmap(peerapps.settings.STATIC_ROOT+'images/peerapps.png', wx.BITMAP_TYPE_PNG)
         submyimage = myimage.GetSubBitmap(wx.Rect(0,0,16,16))
         myicon = wx.EmptyIcon()
         myicon.CopyFromBitmap(submyimage)
@@ -76,14 +76,14 @@ class MyTaskBarIcon(wx.TaskBarIcon):
         self.Bind(wx.EVT_TASKBAR_LEFT_DOWN, self.OnLeftClick)
 
     def statusDisconnected(self):
-        myimage = wx.Bitmap('frontend/static/images/peerapps_disconnected.png', wx.BITMAP_TYPE_PNG)
+        myimage = wx.Bitmap(peerapps.settings.STATIC_ROOT+'images/peerapps_disconnected.png', wx.BITMAP_TYPE_PNG)
         submyimage = myimage.GetSubBitmap(wx.Rect(0,0,16,16))
         myicon = wx.EmptyIcon()
         myicon.CopyFromBitmap(submyimage)
         self.SetIcon(myicon, 'PeerApps')
 
     def statusConnected(self):
-        myimage = wx.Bitmap('frontend/static/images/peerapps.png', wx.BITMAP_TYPE_PNG)
+        myimage = wx.Bitmap(peerapps.settings.STATIC_ROOT+'images/peerapps.png', wx.BITMAP_TYPE_PNG)
         submyimage = myimage.GetSubBitmap(wx.Rect(0,0,16,16))
         myicon = wx.EmptyIcon()
         myicon.CopyFromBitmap(submyimage)
@@ -159,6 +159,8 @@ def scan_blockchain():
             app.wxPeerApps.statusDisconnected()
         time.sleep(2)
 
+from django.core import management
+management.call_command('migrate', interactive=False)
 
 app = MyApp(0)
 app.MainLoop()

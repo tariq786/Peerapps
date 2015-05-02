@@ -7,6 +7,7 @@ import platform
 from bitcoinrpc.authproxy import AuthServiceProxy
 import external_db
 import time
+import peerapps.settings
 
 import shutil
 
@@ -60,8 +61,10 @@ def get_service_status():
         conf['wallet_connected_status'] = "bad"
 
     try:
-        gnupg.GPG(gnupghome=os.getcwd()+"/test_gpg_setup")
-        shutil.rmtree(os.getcwd()+"/test_gpg_setup", ignore_errors=True)
+        if not os.path.exists(peerapps.settings.BASE_DIR+"/test_gpg_setup"):
+            os.mkdir(peerapps.settings.BASE_DIR+"/test_gpg_setup")
+        gnupg.GPG(gnupghome=peerapps.settings.BASE_DIR+"/test_gpg_setup")
+        shutil.rmtree(peerapps.settings.BASE_DIR+"/test_gpg_setup", ignore_errors=True)
         conf['gpg_suite_installed'] = "good"
     except:
         conf['gpg_suite_installed'] = "bad"
@@ -159,28 +162,30 @@ def get_rpc_url():
     return service_url
 
 def get_pk(address):
-    if not os.path.isdir(os.getcwd()+"/my_keys/gpg_"+address):
+    if not os.path.isdir(peerapps.settings.BASE_DIR+"/my_keys/gpg_"+address):
         raise ValueError
-    gpg = gnupg.GPG(gnupghome=os.getcwd()+"/my_keys/gpg_"+address)
+    gpg = gnupg.GPG(gnupghome=peerapps.settings.BASE_DIR+"/my_keys/gpg_"+address)
     return gpg.export_keys(gpg.list_keys()[0]['keyid'])
 
 def check_gpg_status(address):
-    return os.path.isdir(os.getcwd()+"/my_keys/gpg_"+address)
+    return os.path.isdir(peerapps.settings.BASE_DIR+"/my_keys/gpg_"+address)
 
 def save_public_key(address, key):
-    pk_dir = os.getcwd()+"/public_keys/gpg_"+address+'/'
+    pk_dir = peerapps.settings.BASE_DIR+"/public_keys/gpg_"+address+'/'
     shutil.rmtree(pk_dir, ignore_errors=True)
     os.makedirs(pk_dir)
     with open(pk_dir+'keys.asc', 'w') as f:
         f.write(key)
 
 def setup_gpg(address):
-    gpg = gnupg.GPG(gnupghome=os.getcwd()+"/my_keys/gpg_"+address)
+    if not os.path.exists(peerapps.settings.BASE_DIR+"/my_keys/gpg_"+address):
+        os.mkdir(peerapps.settings.BASE_DIR+"/my_keys/gpg_"+address)
+    gpg = gnupg.GPG(gnupghome=peerapps.settings.BASE_DIR+"/my_keys/gpg_"+address)
     input_data = gpg.gen_key_input(name_email=address+'@peercoin.net')
     key = gpg.gen_key(input_data)
     ascii_armored_public_keys = gpg.export_keys(str(key))
     ascii_armored_private_keys = gpg.export_keys(str(key), True)
-    with open(os.getcwd()+"/my_keys/gpg_"+address+'/keys.asc', 'w') as f:
+    with open(peerapps.settings.BASE_DIR+"/my_keys/gpg_"+address+'/keys.asc', 'w') as f:
         f.write(ascii_armored_public_keys)
         f.write(ascii_armored_private_keys)
 
@@ -204,8 +209,8 @@ def verify_and_strip_signature(rpc_connection, plaintext, address):
     return message
 
 def encrypt_string(plaintext, address):
-    gpg = gnupg.GPG(gnupghome=os.getcwd()+"/public_keys/gpg_"+address)
-    key_data = open(os.getcwd()+"/public_keys/gpg_"+address+'/keys.asc').read()
+    gpg = gnupg.GPG(gnupghome=peerapps.settings.BASE_DIR+"/public_keys/gpg_"+address)
+    key_data = open(peerapps.settings.BASE_DIR+"/public_keys/gpg_"+address+'/keys.asc').read()
     gpg.import_keys(key_data)
     encrypted_data = gpg.encrypt(plaintext, address+'@peercoin.net', always_trust=True)
     if not str(encrypted_data):
@@ -213,7 +218,7 @@ def encrypt_string(plaintext, address):
     return str(encrypted_data)
 
 def decrypt_string(encrypted_string, address):
-    gpg = gnupg.GPG(gnupghome=os.getcwd()+"/my_keys/gpg_"+address)
+    gpg = gnupg.GPG(gnupghome=peerapps.settings.BASE_DIR+"/my_keys/gpg_"+address)
     decrypted_data = gpg.decrypt(encrypted_string, always_trust=True)
     return str(decrypted_data.data)
 

@@ -167,6 +167,7 @@ def submit_blogpost(request):
 @csrf_exempt
 def peerblog(request):
     html = ""
-    with open("frontend/peerblog.html") as f:
+    import peerapps.settings
+    with open(peerapps.settings.PEERAPPS_FRONTEND_ROOT+"/peerblog.html") as f:
         html = f.read()
     return HttpResponse(html, content_type="text/html")

@@ -63,6 +63,7 @@ def get_addresses(request):
 @csrf_exempt
 def setup(request):
     html = ""
-    with open("frontend/setup.html") as f:
+    import peerapps.settings
+    with open(peerapps.settings.PEERAPPS_FRONTEND_ROOT+"/setup.html") as f:
         html = f.read()
     return HttpResponse(html, content_type="text/html")

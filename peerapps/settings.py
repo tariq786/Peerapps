@@ -93,6 +93,8 @@ else:
 
 STATIC_URL = '/static/'
 
+PEERAPPS_FRONTEND_ROOT = os.path.join(BASE_DIR, "frontend/")
+
 SETTINGS_PATH = os.path.dirname(os.path.dirname(__file__))
 TEMPLATES = [
     {
