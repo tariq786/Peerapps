@@ -1,18 +1,19 @@
-import json
-import helpers, blockchain_func
 from bitcoinrpc.authproxy import AuthServiceProxy as rpcRawProxy
-import local_db
 import webbrowser
-import os
 import wx
 import thread
 import time
-from bottle import static_file, redirect, Bottle
 import sys
+import os
 sys.path.append('./')
 
 #clear out pyc files
 #find . -name '*.pyc' -delete
+
+os.environ['DJANGO_SETTINGS_MODULE'] = 'peerapps.settings'
+import django
+django.setup()
+import helpers, blockchain_func
 
 class mainFrame(wx.Frame):
     global settings
@@ -20,10 +21,8 @@ class mainFrame(wx.Frame):
         style = wx.DEFAULT_FRAME_STYLE ^ wx.RESIZE_BORDER
         self.window = wx.Frame.__init__(self, parent, id, title, size=(450,555), style=style)
 
-        icon1 = wx.Icon("static/images/peercoin.png", wx.BITMAP_TYPE_PNG)
-        self.SetIcon(icon1)
-
         self.tskic = MyTaskBarIcon(self)
+        self.statusConnected()
 
         self.Bind(wx.EVT_CLOSE,self.OnClose)
 
@@ -33,6 +32,16 @@ class mainFrame(wx.Frame):
 
         wx.CallAfter(self.StartAsyncThreads)
         self.Layout()
+
+    def statusDisconnected(self):
+        icon1 = wx.Icon("frontend/static/images/peerapps_disconnected.png", wx.BITMAP_TYPE_PNG)
+        self.SetIcon(icon1)
+        self.tskic.statusDisconnected()
+
+    def statusConnected(self):
+        icon1 = wx.Icon("frontend/static/images/peerapps.png", wx.BITMAP_TYPE_PNG)
+        self.SetIcon(icon1)
+        self.tskic.statusConnected()
 
     def onFullClose(self, event):
         for w in wx.GetTopLevelWindows():
@@ -53,7 +62,7 @@ class MyTaskBarIcon(wx.TaskBarIcon):
 
         self.frame = frame
 
-        myimage = wx.Bitmap('static/images/peercoin.png', wx.BITMAP_TYPE_PNG)
+        myimage = wx.Bitmap('frontend/static/images/peerapps.png', wx.BITMAP_TYPE_PNG)
         submyimage = myimage.GetSubBitmap(wx.Rect(0,0,16,16))
         myicon = wx.EmptyIcon()
         myicon.CopyFromBitmap(submyimage)
@@ -65,6 +74,20 @@ class MyTaskBarIcon(wx.TaskBarIcon):
 
         self.Bind(wx.EVT_MENU, self.OnTaskBarClose, id=5)
         self.Bind(wx.EVT_TASKBAR_LEFT_DOWN, self.OnLeftClick)
+
+    def statusDisconnected(self):
+        myimage = wx.Bitmap('frontend/static/images/peerapps_disconnected.png', wx.BITMAP_TYPE_PNG)
+        submyimage = myimage.GetSubBitmap(wx.Rect(0,0,16,16))
+        myicon = wx.EmptyIcon()
+        myicon.CopyFromBitmap(submyimage)
+        self.SetIcon(myicon, 'PeerApps')
+
+    def statusConnected(self):
+        myimage = wx.Bitmap('frontend/static/images/peerapps.png', wx.BITMAP_TYPE_PNG)
+        submyimage = myimage.GetSubBitmap(wx.Rect(0,0,16,16))
+        myicon = wx.EmptyIcon()
+        myicon.CopyFromBitmap(submyimage)
+        self.SetIcon(myicon, 'PeerApps')
 
     def OnTaskBarClose(self, event):
         self.RemoveIcon()
@@ -85,20 +108,20 @@ class MyTaskBarIcon(wx.TaskBarIcon):
         return tbmenu
 
     def GoToSetup(self, event):
-        webbrowser.open("http://127.0.0.1:8011/setup")
+        webbrowser.open("http://127.0.0.1:8011/setup.html")
 
     def GoToPeerMessage(self, event):
-        webbrowser.open("http://127.0.0.1:8011/peermessage")
+        webbrowser.open("http://127.0.0.1:8011/peermessage.html")
 
     def GoToPeerBlog(self, event):
-        webbrowser.open("http://127.0.0.1:8011/peerblog")
+        webbrowser.open("http://127.0.0.1:8011/peerblog.html")
 
     def GoToPeercoinTalk(self, event):
         webbrowser.open("http://www.peercointalk.org/")
 
 class MyApp(wx.App):
     def OnInit(self):
-        mainFrame(None, -1, 'PeerApps')
+        self.wxPeerApps = mainFrame(None, -1, 'PeerApps')
         return True
 
     def onCloseIt(self, event):
@@ -107,49 +130,35 @@ class MyApp(wx.App):
         self.Destroy()
 
 def start_webserver():
-    rootApp = Bottle()
+    from cherrypy import wsgiserver
+    import django.core.handlers.wsgi
+    server = wsgiserver.CherryPyWSGIServer(
+        ('127.0.0.1', 8011),
+        django.core.handlers.wsgi.WSGIHandler(),
+        numthreads = 20,
+    )
 
-    @rootApp.route('/blockchain_scan_status', method='POST')
-    def blockchain_scan_status():
-        local_db_session = local_db.get_session()
-        rpc_raw = rpcRawProxy(helpers.get_rpc_url())
-        latest_block, blocks_left = blockchain_func.get_blockchain_scan_status(rpc_raw, local_db_session)
-        return json.dumps({
-            "status":"success",
-            "latest_block": latest_block,
-            "blocks_left": blocks_left
-        })
-
-    @rootApp.route('/')
-    def base():
-        redirect("/setup")
-
-    @rootApp.route('/static/:filename#.*#')
-    def send_static(filename):
-        return static_file(filename, root='./static/')
-
-    #Load all sub-modules url paths into webserver
-    for name in os.listdir("./modules/"):
-        if os.path.isfile("./modules/"+name+"/server.py"):
-            exec "from modules."+name+".server import moduleApp as "+name+"_moduleApp" in globals(), locals()
-            rootApp.merge(locals()[name+"_moduleApp"])
-
-    webbrowser.open("http://127.0.0.1:8011/setup")
-    rootApp.run(host='127.0.0.1', port=8011, server='cherrypy')
+    try:
+        server.start()
+    except KeyboardInterrupt:
+        server.stop()
 
 def scan_blockchain():
     """
         Scan one block in the blockchain (and mempool as well)
     """
-    local_db_session = local_db.get_session()
     rpc_raw = rpcRawProxy(helpers.get_rpc_url())
     while True:
-        latest_block, blocks_left = blockchain_func.scan_block(rpc_raw, local_db_session)
-        if latest_block:
-            print "On the latest block, sleeping for 10 seconds"
-            time.sleep(10)
+        try:
+            latest_block, blocks_left = blockchain_func.scan_block(rpc_raw)
+            app.wxPeerApps.statusConnected()
+            if latest_block:
+                print "On the latest block, sleeping for 10 seconds"
+                time.sleep(10)
+        except:
+            app.wxPeerApps.statusDisconnected()
+        time.sleep(2)
 
 
-local_db.setup()
 app = MyApp(0)
 app.MainLoop()

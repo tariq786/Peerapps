@@ -7,7 +7,6 @@ def post_data(value):
 
     #key must NOT contain capital letters, causes opcode error
     key = hashlib.sha1(str(time.time())+value).hexdigest()[:25]
-
     #pastebin creates it's own unique key of 8 characters, which is 18 characters in hex
     pb_key = pastebin.post_data(value)
     if pb_key:
@@ -27,15 +26,19 @@ def get_data(key):
     #share the load
     choices = ["tinyurl", "isgd", "pastebin"]
     random.shuffle(choices)
-    for i in range(3):
-        if choices[i] == "tinyurl":
+    for c in choices:
+        if c == "tinyurl":
             data = tinyurl.get_data(key)
-        elif choices[i] == "isgd":
+        elif c == "isgd":
             data = isgd.get_data(key)
-        elif choices[i] == "pastebin":
-            data = pastebin.get_data(key[-16:].decode("hex"))
+        elif c == "pastebin":
+            try:
+                data = pastebin.get_data(key[-16:].decode("hex"))
+            except TypeError:
+                data = None #Can occur from someone making an invalid key
 
         if data:
+            print "data", data
             break
         
     return data

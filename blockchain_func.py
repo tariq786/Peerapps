@@ -1,48 +1,41 @@
-import local_db
 from bitcoinrpc.authproxy import JSONRPCException
 
-from sqlalchemy.sql import update
 import json
-import time
-import os
+import datetime
 
-blockchain_module_scanners = []
-for name in os.listdir("./modules/"):
-    if os.path.isfile("./modules/"+name+"/opreturn_scanner.py"):
-        exec "from modules."+name+".opreturn_scanner import parse as "+name+"_moduleparse"
-        blockchain_module_scanners.append(name+"_moduleparse")
-        #rootApp.merge(globals()[name+"_moduleparse"])
+#Static load
+from peerblog.opreturn_scanner import parse as peerblog_moduleparse
+from peermessage.opreturn_scanner import parse as peermessage_moduleparse
 
-def get_blockchain_scan_status(rpc_raw, local_db_session):
-    bkscan = local_db_session.query(local_db.BlockchainScan).first() #Attempt to pick up where we left off.
-    if not bkscan: #First scan!
-        bkscan = local_db.BlockchainScan(last_index=341355)
-        local_db_session.add(bkscan)
-        local_db_session.commit()
-    current_index = bkscan.last_index
+from setup.models import BlockchainScan, MemPoolScan
+
+def get_blockchain_scan_status(rpc_raw):
     blockcount = rpc_raw.getblockcount()
+    bkscan = BlockchainScan.objects.all().first() #Attempt to pick up where we left off.
+    if not bkscan: #First scan!
+        bkscan = BlockchainScan(last_index=(blockcount-1000))
+        bkscan.save()
+    current_index = bkscan.last_index
     on_latest_block = True if current_index >= blockcount else False
     return on_latest_block, blockcount - current_index
 
 
-def scan_block(rpc_raw, local_db_session):
-    bkscan = local_db_session.query(local_db.BlockchainScan).first() #Attempt to pick up where we left off.
-    if not bkscan: #First scan!
-        bkscan = local_db.BlockchainScan(last_index=341355)
-        local_db_session.add(bkscan)
-        local_db_session.commit()
-    current_index = bkscan.last_index
+def scan_block(rpc_raw):
     blockcount = rpc_raw.getblockcount()
+    bkscan = BlockchainScan.objects.all().first() #Attempt to pick up where we left off.
+    if not bkscan: #First scan!
+        bkscan = BlockchainScan(last_index=(blockcount-1000))
+        bkscan.save()
+    current_index = bkscan.last_index
     on_latest_block = True if current_index >= blockcount else False
 
     processed_transactions = {}
     if on_latest_block:
         #If we are on the latest block, we'll be scanning the mempool later
-        mpscan = local_db_session.query(local_db.MemPoolScan).first()
+        mpscan = MemPoolScan.objects.all().first()
         if not mpscan:
-            mpscan = local_db.MemPoolScan(txids_scanned=json.dumps({}))
-            local_db_session.add(mpscan)
-            local_db_session.commit()
+            mpscan = MemPoolScan(txids_scanned=json.dumps({}))
+            mpscan.save()
 
         #get tx_ids we already scanned in mempool.
         processed_transactions = json.loads(mpscan.txids_scanned)
@@ -53,20 +46,16 @@ def scan_block(rpc_raw, local_db_session):
         bi = rpc_raw.getblock(block_hash) #get list of tx_ids in block
         for tx_id in bi['tx']:
             if tx_id not in processed_transactions: #only process transactions once
-                block_time = bi['time'] if 'time' in bi else int(time.time())
-                parse_transaction(rpc_raw, local_db_session, tx_id, current_index, block_time)
+                block_time = bi['time'] if 'time' in bi else datetime.datetime.now()
+                parse_transaction(rpc_raw, tx_id, current_index, block_time)
 
         current_index += 1
-        u = update(local_db.BlockchainScan).values({"last_index": current_index})
-        local_db_session.execute(u)
-        local_db_session.commit()
+        BlockchainScan.objects.all().update(last_index=current_index)
 
         if on_latest_block:
             print "wiping mempool"
             #wipe mempool scan (assume mempool transactions were added to this block)
-            u = update(local_db.MemPoolScan).values({"txids_scanned": "{}"})
-            local_db_session.execute(u)
-            local_db_session.commit()
+            MemPoolScan.objects.all().update(txids_scanned="{}")
             processed_transactions = {}
 
     except JSONRPCException:
@@ -79,19 +68,17 @@ def scan_block(rpc_raw, local_db_session):
         count_new = 0
         for tx_id in unconfirmed_transactions:
             if tx_id not in processed_transactions:
-                parse_transaction(rpc_raw, local_db_session, tx_id, current_index, int(time.time()))
+                parse_transaction(rpc_raw, tx_id, current_index, datetime.datetime.now())
                 processed_transactions[tx_id] = 1
                 count_new += 1
         print "(found", count_new, "transactions)"
 
-        u = update(local_db.MemPoolScan).values({"txids_scanned": json.dumps(processed_transactions)})
-        local_db_session.execute(u)
-        local_db_session.commit()
+        MemPoolScan.objects.all().update(txids_scanned=json.dumps(processed_transactions))
 
         return True, blockcount - current_index
     return False, blockcount - current_index
 
-def parse_transaction(rpc_raw, local_db_session, tx_id, block_index, block_time):
+def parse_transaction(rpc_raw, tx_id, block_index, block_time):
     tx_info = rpc_raw.decoderawtransaction(rpc_raw.getrawtransaction(tx_id))
     for vout in tx_info['vout']:
         if vout['scriptPubKey']['asm'].startswith("OP_RETURN"):
@@ -108,12 +95,12 @@ def parse_transaction(rpc_raw, local_db_session, tx_id, block_index, block_time)
                     addresses.append(input_raw_tx['vout'][inp['vout']]['scriptPubKey']['addresses'][0])
                 from_user_address = addresses[0]
 
-                for b in blockchain_module_scanners:
-                    globals()[b](rpc_raw, local_db_session, op_return_data, from_user_address, block_index, tx_id, block_time)
+                peerblog_moduleparse(rpc_raw, op_return_data, from_user_address, block_index, tx_id, block_time)
+                peermessage_moduleparse(rpc_raw, op_return_data, from_user_address, block_index, tx_id, block_time)
 
 
 def submit_opreturn(rpc_connection, address, data):
-    from bitcoin.core import CTxIn, CMutableTxOut, MAX_MONEY, CScript, CMutableTransaction, COIN, b2x, b2lx
+    from bitcoin.core import CTxIn, CMutableTxOut, CScript, CMutableTransaction, COIN, CENT, b2x, b2lx
     from bitcoin.core.script import OP_CHECKSIG, OP_RETURN
 
     txouts = []
@@ -125,24 +112,17 @@ def submit_opreturn(rpc_connection, address, data):
     value_in = unspent[-1]['amount']
 
     change_pubkey = rpc_connection.validateaddress(address)['pubkey']
-    change_out = CMutableTxOut(MAX_MONEY, CScript([change_pubkey, OP_CHECKSIG]))
-
-    digest_outs = [CMutableTxOut(0, CScript([OP_RETURN, data]))]
-
+    change_out = CMutableTxOut(int(value_in - 2*CENT), CScript([change_pubkey, OP_CHECKSIG]))
+    digest_outs = [CMutableTxOut(CENT, CScript([OP_RETURN, data]))]
     txouts = [change_out] + digest_outs
-
     tx = CMutableTransaction(txins, txouts)
+    
+    print tx.serialize().encode('hex')
+    r = rpc_connection.signrawtransaction(tx)
+    assert r['complete']
+    tx = r['tx']
 
-    FEE_PER_BYTE = 0.00025*COIN/1000
-    while True:
-        tx.vout[0].nValue = int(value_in - max(len(tx.serialize()) * FEE_PER_BYTE, 0.00011*COIN))
 
-        r = rpc_connection.signrawtransaction(tx)
-        assert r['complete']
-        tx = r['tx']
-
-        if value_in - tx.vout[0].nValue >= len(tx.serialize()) * FEE_PER_BYTE:
-            print b2x(tx.serialize())
-            print len(tx.serialize()), 'bytes'
-            print(b2lx(rpc_connection.sendrawtransaction(tx)))
-            break
+    #print b2x(tx.serialize())
+    #print len(tx.serialize()), 'bytes'
+    print(b2lx(rpc_connection.sendrawtransaction(tx)))

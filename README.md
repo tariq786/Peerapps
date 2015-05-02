@@ -1,11 +1,12 @@
-PeerApps
+PeerApps Beta v0.2.0
 ===
+
+[![Tip Balance For Commits](http://peer4commit.com/projects/148.svg)](http://peer4commit.com/projects/148)
 
  - PeerApps is a data application framework built on the Peercoin blockchain.
  - Learn more about our individual modules (PeerMessage, PeerBlog, etc) by going to the modules/ directory and scoping their READMEs.
  - Learn more about Peercoin from [here](http://peercoin.net/), and check out our forums at [Peercointalk](http://peercointalk.org/).
- - NOTE! We are currently in BETA. We are using the Bitcoin blockchain for testing until op_return/bitcoin 0.8 gets merged into Peercoin. This app will not currently work with Peercoin. Even though the app uses the the text "Peercoin" in several places, we are actually using Bitcoin.
- - Check the "Issues" tab to see the next several things I'll be working on.
+ - NOTE! We are currently in BETA. As such, this application should only be used on Peercoin's testnet.
 
 ## Installation Process
 
@@ -14,6 +15,10 @@ PeerApps
 
 ### Install wxPython
  - [Link](http://www.wxpython.org/download.php)
+ - Alternatively:
+    ```
+    sudo pip install --upgrade --pre -f http://wxpython.org/Phoenix/snapshot-builds/ wxPython_Phoenix
+    ```
 
 ### Install OpenSSL
 OSX
@@ -38,12 +43,23 @@ OSX
 Windows
  - ``` C:\Python27\Scripts\pip.exe install -r requirements.txt ```
 
-### Run the app
+### Run the app like a standard client
  - ``` $ python peerapps.py ```
+ - This runs the django app as a cherrypy server, and spawns a thread in the background that scans the blockchain and watches the network.
+
+### Run the app for development
+ - ``` $ python manage.py runserver 8011 ```
+ - This runs the django app using django's built in webserver. This will automatically reload the server for each code change you make, making development easier. On the downside, the blockchain is not being scanned in a background thread.
 
 
 ## Changelog
 
-### v0.1.0
+### v0.2.0 [May 1st, 2015]
+
+* Rewrote framework to use django instead of flash/sqlalchemy, allows better separation of modules.
+* Changed opcode "msg" payload to be a json string that includes GPG pub key of sender, instead of just being the message. Ensures each user's GPG pub key gets refreshed into the system with each message they send. Clients download messages to retrieve GPG pub keys if they haven't seen a user's pub key in 1000 blocks (one week).
+* Changed framework to point to Peercoin blockchain, and automatically detects if testnet or mainnet
+
+### v0.1.0 [Feb 1st, 2015]
 
 * App published in private beta off Bitcoin blockchain.

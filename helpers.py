@@ -5,7 +5,8 @@ import datetime
 from decimal import Decimal
 import platform
 from bitcoinrpc.authproxy import AuthServiceProxy
-import local_db, external_db
+import external_db
+import time
 
 import shutil
 
@@ -29,20 +30,19 @@ def download_blg(rpc_raw, key, from_address):
     return verified_message
 
 
-def download_blgs(rpc_raw, local_db_session):
-    db_blogs = local_db_session.query(local_db.Broadcast).filter(local_db.Broadcast.msg == "").order_by(local_db.Broadcast.time.desc())
+def download_blgs(rpc_raw):
+    from peerblog.models import Subscription, Blog
+    db_blogs = Blog.objects.filter(msg="").order_by('-time')
     my_addresses = [x['address'] for x in rpc_raw.listunspent(0)]
     for b in db_blogs:
-        if b.address_from in my_addresses or local_db_session.query(local_db.Subscription).filter(local_db.Subscription.address == b.address_from).first():
-
+        if b.address_from in my_addresses or Subscription.objects.filter(address=b.address_from).exists():
             blog_post = download_blg(rpc_raw, b.key, b.address_from)
             if blog_post is None:
                 #delete it or something.
                 pass
 
-            print "Saved new broadcast message", blog_post
-            local_db_session.query(local_db.Broadcast).filter(local_db.Broadcast.key == b.key).update({"msg": blog_post})
-            local_db_session.commit()
+            print "Saved new blog message", blog_post
+            Blog.objects.filter(key=b.key).update(msg=blog_post)
 
 def get_service_status():
     """
@@ -51,12 +51,6 @@ def get_service_status():
     conf = get_config()
     if 'rpcpassword' in conf and conf['rpcpassword']:
         conf['rpcpassword'] = "*******"
-    try:
-        rpc_raw = AuthServiceProxy(get_rpc_url())
-        rpc_raw.decoderawtransaction(rpc_raw.getrawtransaction("576e6802bc6787183a329c3ebc8c7189957ab993b9cffbacb8b121f34c40c1d0"))
-        conf['index_status'] = "good"
-    except:
-        conf['index_status'] = "bad"
 
     try:
         rpc_raw = AuthServiceProxy(get_rpc_url())
@@ -76,18 +70,18 @@ def get_service_status():
 
 def edit_config(forced_updates, optional_updates=None):
     if platform.system() == 'Darwin':
-        btc_conf_file = os.path.expanduser('~/Library/Application Support/Bitcoin/')
+        btc_conf_file = os.path.expanduser('~/Library/Application Support/PPCoin/')
     elif platform.system() == 'Windows':
-        btc_conf_file = os.path.join(os.environ['APPDATA'], 'Bitcoin')
+        btc_conf_file = os.path.join(os.environ['APPDATA'], 'PPCoin')
     else:
-        btc_conf_file = os.path.expanduser('~/.bitcoin')
-    btc_conf_file = os.path.join(btc_conf_file, 'bitcoin.conf')
+        btc_conf_file = os.path.expanduser('~/.ppcoin')
+    btc_conf_file = os.path.join(btc_conf_file, 'ppcoin.conf')
 
     new_file_contents = ""
 
-    # Extract contents of bitcoin.conf to build service_url
+    # Extract contents of ppcoin.conf to build service_url
     with open(btc_conf_file, 'r') as fd:
-        # Bitcoin Core accepts empty rpcuser, not specified in btc_conf_file
+        # PPCoin Core accepts empty rpcuser, not specified in btc_conf_file
         for line in fd.readlines():
             orig_line = line
             if '=' not in line:
@@ -116,16 +110,16 @@ def edit_config(forced_updates, optional_updates=None):
 
 def get_config():
     if platform.system() == 'Darwin':
-        btc_conf_file = os.path.expanduser('~/Library/Application Support/Bitcoin/')
+        btc_conf_file = os.path.expanduser('~/Library/Application Support/PPCoin/')
     elif platform.system() == 'Windows':
-        btc_conf_file = os.path.join(os.environ['APPDATA'], 'Bitcoin')
+        btc_conf_file = os.path.join(os.environ['APPDATA'], 'PPCoin')
     else:
-        btc_conf_file = os.path.expanduser('~/.bitcoin')
-    btc_conf_file = os.path.join(btc_conf_file, 'bitcoin.conf')
+        btc_conf_file = os.path.expanduser('~/.ppcoin')
+    btc_conf_file = os.path.join(btc_conf_file, 'ppcoin.conf')
 
-    # Extract contents of bitcoin.conf to build service_url
+    # Extract contents of ppcoin.conf to build service_url
     with open(btc_conf_file, 'r') as fd:
-        # Bitcoin Core accepts empty rpcuser, not specified in btc_conf_file
+        # PPCoin Core accepts empty rpcuser, not specified in btc_conf_file
         conf = {'rpcuser': ""}
         for line in fd.readlines():
             if '#' in line:
@@ -135,8 +129,7 @@ def get_config():
             k, v = line.split('=', 1)
             conf[k.strip()] = v.strip()
 
-        service_port = 8332
-        conf['rpcport'] = int(conf.get('rpcport', service_port))
+        conf['rpcport'] = int(conf.get('rpcport', -1))
         conf['rpcssl'] = conf.get('rpcssl', '0')
 
         if conf['rpcssl'].lower() in ('0', 'false'):
@@ -145,6 +138,12 @@ def get_config():
             conf['rpcssl'] = True
         else:
             raise ValueError('Unknown rpcssl value %r' % conf['rpcssl'])
+
+    if conf['rpcport'] == -1:
+        if 'testnet' in conf and conf['testnet'] in ['1', 'true']:
+            conf['rpcport'] = 9904
+        else:
+            conf['rpcport'] = 9902
 
     conf['file_loc'] = btc_conf_file
     return conf
@@ -225,7 +224,6 @@ def json_custom_parser(obj):
     if isinstance(obj, Decimal):
         return str(obj)
     elif isinstance(obj, datetime.datetime) or isinstance(obj, datetime.date):
-        dot_ix = 19 # 'YYYY-MM-DDTHH:MM:SS.mmmmmm+HH:MM'.find('.')
-        return obj.isoformat()[:dot_ix]
+        return time.mktime(obj.timetuple())
     else:
         raise TypeError(obj)

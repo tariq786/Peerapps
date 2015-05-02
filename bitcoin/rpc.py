@@ -66,19 +66,19 @@ class RawProxy(object):
         """
 
         if service_url is None:
-            # Figure out the path to the bitcoin.conf file
+            # Figure out the path to the ppcoin.conf file
             if btc_conf_file is None:
                 if platform.system() == 'Darwin':
-                    btc_conf_file = os.path.expanduser('~/Library/Application Support/Bitcoin/')
+                    btc_conf_file = os.path.expanduser('~/Library/Application Support/PPCoin/')
                 elif platform.system() == 'Windows':
-                    btc_conf_file = os.path.join(os.environ['APPDATA'], 'Bitcoin')
+                    btc_conf_file = os.path.join(os.environ['APPDATA'], 'PPCoin')
                 else:
-                    btc_conf_file = os.path.expanduser('~/.bitcoin')
-                btc_conf_file = os.path.join(btc_conf_file, 'bitcoin.conf')
+                    btc_conf_file = os.path.expanduser('~/.ppcoin')
+                btc_conf_file = os.path.join(btc_conf_file, 'ppcoin.conf')
 
-            # Extract contents of bitcoin.conf to build service_url
+            # Extract contents of ppcoin.conf to build service_url
             with open(btc_conf_file, 'r') as fd:
-                # Bitcoin Core accepts empty rpcuser, not specified in btc_conf_file
+                # Peercoin Core accepts empty rpcuser, not specified in btc_conf_file
                 conf = {'rpcuser': ""}
                 for line in fd.readlines():
                     if '#' in line:
@@ -90,7 +90,13 @@ class RawProxy(object):
 
                 if service_port is None:
                     service_port = bitcoin.params.RPC_PORT
-                conf['rpcport'] = int(conf.get('rpcport', service_port))
+
+
+                if 'testnet' in conf and conf['testnet'] in ['1', 'true']:
+                    conf['rpcport'] = 9904
+                else:
+                    conf['rpcport'] = 9902
+
                 conf['rpcssl'] = conf.get('rpcssl', '0')
 
                 if conf['rpcssl'].lower() in ('0', 'false'):
