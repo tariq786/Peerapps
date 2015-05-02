@@ -1,4 +1,4 @@
-PeerApps Beta v0.2.0
+PeerApps ALPHA v0.2.1 [[Frontend Repo]](https://github.com/Peerapps/Peerapps-Frontend)
 ===
 
 [![Tip Balance For Commits](http://peer4commit.com/projects/148.svg)](http://peer4commit.com/projects/148)
@@ -6,7 +6,7 @@ PeerApps Beta v0.2.0
  - PeerApps is a data application framework built on the Peercoin blockchain.
  - Learn more about our individual modules (PeerMessage, PeerBlog, etc) by going to the modules/ directory and scoping their READMEs.
  - Learn more about Peercoin from [here](http://peercoin.net/), and check out our forums at [Peercointalk](http://peercointalk.org/).
- - NOTE! We are currently in BETA. As such, this application should only be used on Peercoin's testnet.
+ - NOTE! We are currently in ALPHA. As such, this application should only be used on Peercoin's testnet, and no binaries will be released.
 
 ## Installation Process
 
@@ -57,12 +57,17 @@ Windows
 
 ## Changelog
 
+### v0.2.1 [May 2st, 2015]
+
+* Worked on OSX binary build. Everything should work now in the build process, save for some runtime errors with GPG key folders.
+* Made source code public.
+
 ### v0.2.0 [May 1st, 2015]
 
-* Rewrote framework to use django instead of flash/sqlalchemy, allows better separation of modules.
+* Rewrote framework to use django instead of flask/sqlalchemy, allows better separation of modules.
 * Changed opcode "msg" payload to be a json string that includes GPG pub key of sender, instead of just being the message. Ensures each user's GPG pub key gets refreshed into the system with each message they send. Clients download messages to retrieve GPG pub keys if they haven't seen a user's pub key in 1000 blocks (one week).
 * Changed framework to point to Peercoin blockchain, and automatically detects if testnet or mainnet
 
 ### v0.1.0 [Feb 1st, 2015]
 
-* App published in private beta off Bitcoin blockchain.
+* App published in private alpha off Bitcoin blockchain.
