@@ -4,10 +4,10 @@ PeerApps ALPHA v0.2.1 [[Frontend Repo]](https://github.com/Peerapps/Peerapps-Fro
 [![Tip Balance For Commits](http://peer4commit.com/projects/148.svg)](http://peer4commit.com/projects/148)
 
  - PeerApps is a data application framework built on the Peercoin blockchain.
- - Learn more about our individual modules (PeerMessage, PeerBlog, etc) by going to the modules/ directory and scoping their READMEs.
+ - Learn more about our individual modules ([PeerMessage](https://github.com/Peerapps/Peerapps/tree/master/peermessage), [PeerBlog](https://github.com/Peerapps/Peerapps/tree/master/peerblog), etc) by going to their respective directories.
  - Learn more about Peercoin from [here](http://peercoin.net/), and check out our forums at [Peercointalk](http://peercointalk.org/).
- - NOTE! We are currently in ALPHA. As such, this application should only be used on Peercoin's testnet, and no binaries will be released.
- - This build currently requires v0.5 of PPCoin Core. No binaries have been created for that yet, so you must go [here](https://github.com/ppcoin/ppcoin) and build it off master yourself.
+ - NOTE! We are currently in ALPHA. As such, this application should only be used on Peercoin's testnet, and no binaries are available yet.
+ - This build currently requires v0.5 of PPCoin Core. No binaries have been created for that yet, so you must go [here](https://github.com/ppcoin/ppcoin) and build it off master branch yourself.
 
 ## Installation Process
 
