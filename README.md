@@ -7,6 +7,7 @@ PeerApps ALPHA v0.2.1 [[Frontend Repo]](https://github.com/Peerapps/Peerapps-Fro
  - Learn more about our individual modules (PeerMessage, PeerBlog, etc) by going to the modules/ directory and scoping their READMEs.
  - Learn more about Peercoin from [here](http://peercoin.net/), and check out our forums at [Peercointalk](http://peercointalk.org/).
  - NOTE! We are currently in ALPHA. As such, this application should only be used on Peercoin's testnet, and no binaries will be released.
+ - This build currently requires v0.5 of PPCoin Core. No binaries have been created for that yet, so you must go [here](https://github.com/ppcoin/ppcoin) and build it off master yourself.
 
 ## Installation Process
 
