@@ -112,8 +112,8 @@ def submit_opreturn(rpc_connection, address, data):
     value_in = unspent[-1]['amount']
 
     change_pubkey = rpc_connection.validateaddress(address)['pubkey']
-    change_out = CMutableTxOut(int(value_in - 2*CENT), CScript([change_pubkey, OP_CHECKSIG]))
-    digest_outs = [CMutableTxOut(CENT, CScript([OP_RETURN, data]))]
+    change_out = CMutableTxOut(int(value_in - 1*CENT), CScript([change_pubkey, OP_CHECKSIG]))
+    digest_outs = [CMutableTxOut(0, CScript([OP_RETURN, data]))]
     txouts = [change_out] + digest_outs
     tx = CMutableTransaction(txins, txouts)
     
@@ -123,6 +123,6 @@ def submit_opreturn(rpc_connection, address, data):
     tx = r['tx']
 
 
-    #print b2x(tx.serialize())
-    #print len(tx.serialize()), 'bytes'
+    print b2x(tx.serialize())
+    print len(tx.serialize()), 'bytes'
     print(b2lx(rpc_connection.sendrawtransaction(tx)))
