@@ -18,6 +18,10 @@ def autocomplete_address(request):
     """
     q = request.GET['term']
     pub_keys = []
+
+    if not os.path.exists("./public_keys"):
+        os.mkdir("./public_keys")
+
     for name in os.listdir("./public_keys/"):
         if "gpg_" in name and q.lower() in name.lower():
             k = name.replace("gpg_", "")

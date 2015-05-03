@@ -178,6 +178,8 @@ def save_public_key(address, key):
         f.write(key)
 
 def setup_gpg(address):
+    if not os.path.exists(peerapps.settings.BASE_DIR+"/my_keys"):
+        os.mkdir(peerapps.settings.BASE_DIR+"/my_keys")
     if not os.path.exists(peerapps.settings.BASE_DIR+"/my_keys/gpg_"+address):
         os.mkdir(peerapps.settings.BASE_DIR+"/my_keys/gpg_"+address)
     gpg = gnupg.GPG(gnupghome=peerapps.settings.BASE_DIR+"/my_keys/gpg_"+address)
